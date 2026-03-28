@@ -486,14 +486,15 @@ body{background:var(--bg);color:var(--text);font-family:'Red Hat Text',sans-seri
                 <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text2);font-weight:600;font-size:14px;">€</span>
               </div>
             </div>
-            <div>
-              <label class="lbl">Časový rámec</label>
-              <select class="sel" id="f-timeline">
-                <option value="1_month">1 mesiac</option>
-                <option value="3_months" selected>3 mesiace</option>
-                <option value="6_months">6 mesiacov</option>
-                <option value="12_months">12 mesiacov</option>
-              </select>
+            <h1 style="margin: 0 0 24px 0; font-size: 1.5rem;">ECOSYSTEM AI</h1>
+            
+            <div id="login-section">
+                <form id="login-form">
+                    <div class="form-group"><input type="email" id="login-email" required placeholder="Email (napr. alex@eco.ai)"></div>
+                    <div class="form-group"><input type="password" id="login-password" required placeholder="Heslo"></div>
+                    <button type="submit" class="btn" style="width: 100%;" id="login-btn">Prihlásiť sa</button>
+                </form>
+                <div class="auth-switch">Nemáš účet? <span id="go-to-register">Zaregistruj sa</span></div>
             </div>
           </div>
           <div class="form-row" style="margin-bottom:0">
@@ -509,36 +510,22 @@ body{background:var(--bg);color:var(--text);font-family:'Red Hat Text',sans-seri
         </div>
       </div>
 
-      <div class="form-row">
-        <label class="lbl">Názov žiadosti *</label>
-        <input class="inp" id="f-title" placeholder="Napr: Hľadáme seed investora pre EdTech startup"/>
-      </div>
-      <div class="form-row">
-        <label class="lbl">Popis *</label>
-        <textarea class="ta" id="f-desc" placeholder="Opíšte detailne, čo potrebujete, aký je kontext a čo ponúkate…"></textarea>
-      </div>
-      <div class="form-2">
-        <div><label class="lbl">Vaše meno *</label><input class="inp" id="f-name" placeholder="Meno Priezvisko"/></div>
-        <div><label class="lbl">Email *</label><input class="inp" id="f-email" type="email" placeholder="email@firma.sk"/></div>
-      </div>
-      <div class="form-2">
-        <div>
-          <label class="lbl">Typ žiadateľa</label>
-          <select class="sel" id="f-type">
-            <option value="startup">Startup</option>
-            <option value="investor">Investor</option>
-            <option value="service_provider">Service Provider</option>
-            <option value="community_member">Člen komunity</option>
-          </select>
-        </div>
-        <div>
-          <label class="lbl">Priorita</label>
-          <select class="sel" id="f-urgency">
-            <option value="low">Nízka</option>
-            <option value="medium" selected>Stredná</option>
-            <option value="high">Vysoká</option>
-            <option value="urgent">Urgentná</option>
-          </select>
+            <div id="register-section" style="display: none;">
+                <form id="register-form">
+                    <div class="form-group"><input type="text" id="reg-name" required placeholder="Celé meno"></div>
+                    <div class="form-group"><input type="email" id="reg-email" required placeholder="Email"></div>
+                    <div class="form-group"><input type="password" id="reg-password" required placeholder="Heslo (min. 6 znakov)" minlength="6"></div>
+                    <div class="form-group">
+                        <select id="reg-role" required>
+                            <option value="finder">Som Finder (Hľadám riešenia/startup)</option>
+                            <option value="seeker">Som Seeker (Hľadám investora/pomoc)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-green" style="width: 100%;" id="reg-btn">Vytvoriť účet</button>
+                </form>
+                <div class="auth-switch">Už máš účet? <span id="go-to-login">Prihlás sa</span></div>
+            </div>
+            
         </div>
       </div>
       <div class="form-row">
@@ -564,363 +551,90 @@ body{background:var(--bg);color:var(--text);font-family:'Red Hat Text',sans-seri
   </div>
 </div>
 
-<!-- ══════════ DETAIL PANEL ══════════ -->
-<div class="det-overlay" id="det-overlay" onclick="closeDet(event)">
-  <div class="det-panel">
-    <div class="det-head">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <div class="det-id" id="d-id">—</div>
-        <button class="mo-close" onclick="closeDet()" style="border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.5)">✕</button>
-      </div>
-      <div class="det-title" id="d-title">—</div>
-      <div class="det-badges" id="d-badges"></div>
-    </div>
-    <!-- auto-routed bar -->
-    <div class="routed-bar" id="routed-bar" style="display:none">
-      <div class="rb-label">Auto-routed →</div>
-      <div class="rb-person" id="rb-person">—</div>
-      <button class="btn btn-mint btn-sm rb-write" id="rb-write-btn" onclick="switchTab('chat')">Napísať správu</button>
-    </div>
-    <!-- tabs -->
-    <div class="det-tabs">
-      <div class="det-tab active" onclick="switchTab('info',this)" id="tab-info">Detaily</div>
-      <div class="det-tab" onclick="switchTab('chat',this)" id="tab-chat">Správy <span class="det-tab-badge" id="chat-unread-badge" style="display:none">!</span></div>
-    </div>
-    <!-- INFO TAB -->
-    <div id="tab-content-info" class="det-body">
-      <div class="det-scroll">
-        <!-- funding detail highlight -->
-        <div id="det-funding-highlight" style="display:none">
-          <div class="funding-detail">
-            <div class="det-ml" style="margin-bottom:6px">Požadovaná suma</div>
-            <div class="fd-amount" id="det-amount">—</div>
-            <div class="fd-period" id="det-period">—</div>
-          </div>
-        </div>
-        <div class="det-sec"><div class="det-sec-ttl">Popis</div><div class="det-desc" id="d-desc">—</div></div>
-        <div class="det-sec"><div class="det-sec-ttl">Detaily</div>
-          <div class="det-meta">
-            <div><div class="det-ml">Žiadateľ</div><div class="det-mv" id="d-req">—</div></div>
-            <div><div class="det-ml">Firma</div><div class="det-mv" id="d-co">—</div></div>
-            <div><div class="det-ml">Email</div><div class="det-mv" id="d-em">—</div></div>
-            <div><div class="det-ml">Priradené</div><div class="det-mv" id="d-asgn">—</div></div>
-            <div><div class="det-ml">Vytvorené</div><div class="det-mv" id="d-cr">—</div></div>
-            <div><div class="det-ml">Aktualizované</div><div class="det-mv" id="d-up">—</div></div>
-          </div>
-        </div>
-        <div class="det-sec"><div class="det-sec-ttl">Odporúčané zhody</div><div id="d-matches"></div></div>
-        <div class="det-sec"><div class="det-sec-ttl">Interné poznámky</div><div id="d-notes" style="font-size:13px;color:var(--text2)">—</div></div>
-      </div>
-    </div>
-    <!-- CHAT TAB -->
-    <div id="tab-content-chat" class="det-body" style="display:none;flex-direction:column;">
-      <div class="chat-msgs" id="det-chat-msgs"></div>
-      <div class="chat-input-wrap">
-        <textarea class="chat-input" id="det-chat-inp" placeholder="Napíšte správu…" rows="1" onkeydown="handleChatKey(event,'det')"></textarea>
-        <button class="chat-send" onclick="sendDetMsg()">➤</button>
-      </div>
-    </div>
-    <div class="det-foot">
-      <button class="btn btn-ghost" style="flex:1" onclick="updStatus('in_progress')">V riešení</button>
-      <button class="btn btn-mint" style="flex:1" onclick="updStatus('resolved')">Vyriešiť →</button>
-    </div>
-  </div>
-</div>
+    <div id="app-view" class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+                ECOSYSTEM AI
+            </div>
+            <nav class="nav-menu">
+                <a class="nav-item active" id="nav-dashboard">Dashboard</a>
+                <a class="nav-item" id="nav-messages">Správy</a>
+                <a class="nav-item" id="nav-settings">Nastavenia</a>
+            </nav>
+            <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-light);">
+                <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 8px;">Prihlásený ako: <strong id="sidebar-user-role" style="color: white;">Rola</strong></div>
+                <button class="btn" style="width: 100%; padding: 8px; font-size: 0.8rem; background: transparent; border: 1px solid var(--border-light); color: var(--text-dim);" id="logout-btn">Odhlásiť sa</button>
+            </div>
+        </aside>
 
-<div class="toast-wrap" id="toasts"></div>
+        <main class="main-content" id="main-content-area">
+            
+            <div id="view-dashboard" class="app-view-section active content-wrapper">
+                <h2 style="margin-top: 0;">Vitaj v systéme, <span id="welcome-name"></span></h2>
+                
+                <div id="dashboard-finder" style="display: none;">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Odoslané správy</h3>
+                            <div class="stat-value" style="color: var(--accent-blue);">14</div>
+                        </div>
+                    </div>
+                    <div class="add-new-card" onclick="alert('Tu sa neskôr otvorí okno pre novú žiadosť.')">
+                        <div class="plus-icon">+</div>
+                        <div style="font-weight: 600;">Vytvoriť novú požiadavku</div>
+                        <div style="font-size: 0.85rem;">Nechaj AI preskúmať ekosystém</div>
+                    </div>
+                </div>
 
-<script>
-// ── DATA ─────────────────────────────────────────────────────
-const API='http://localhost:8000';
+                <div id="dashboard-seeker" style="display: none;">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Dôležité správy</h3>
+                            <div class="stat-value" style="color: var(--red);">3</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Prijaté správy</h3>
+                            <div class="stat-value" style="color: var(--green);">27</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Čakajúce správy</h3>
+                            <div class="stat-value" style="color: var(--orange);">5</div>
+                        </div>
+                    </div>
+                    <div class="panel">
+                        <div class="panel-header">Tvoj profil je aktívny</div>
+                        <p style="color: var(--text-dim); font-size: 0.9rem;">Tvoje údaje momentálne analyzuje AI pre potenciálnych Finderov.</p>
+                    </div>
+                </div>
+            </div>
 
-// AUTO-ROUTING RULES — kategória → zodpovedná osoba v Get IT / komunite
-const ROUTING_RULES = {
-  funding:      { name:'Zuzana Mináčová', role:'Investment Lead', company:'Get IT / zero one hundred', ico:'💰', desc:'Funding, investori, seed rounds', keywords:['investor','seed','round','funding','kapitál','200k','500k'] },
-  investment:   { name:'Zuzana Mináčová', role:'Investment Lead', company:'Get IT / zero one hundred', ico:'📈', desc:'Investičné príležitosti', keywords:['investícia','equity','round','ARR'] },
-  hiring:       { name:'Jana Kováčová',   role:'HR & Talent Lead', company:'Get IT', ico:'👤', desc:'Nábor, pozície, recruitment', keywords:['developer','hire','zamestnanec','pozícia','job'] },
-  speaking:     { name:'Peter Blaho',     role:'Speaker Manager', company:'Get IT / Startup Grind BA', ico:'🎤', desc:'Eventy, konferencie, panely', keywords:['speaker','event','konferencia','talk','panel'] },
-  marketing:    { name:'Lucia Horáková',  role:'Marketing Lead', company:'GrowthLab', ico:'📢', desc:'Kampane, social media, PR', keywords:['marketing','kampaň','LinkedIn','PR','brand'] },
-  sales:        { name:'Tomáš Ferko',     role:'Sales & BD Lead', company:'B2B Pros', ico:'🤝', desc:'Sales stratégia, pipeline, BD', keywords:['sales','predaj','pipeline','CRM','B2B'] },
-  client_search:{ name:'Tomáš Ferko',     role:'Sales & BD Lead', company:'B2B Pros', ico:'🔍', desc:'Hľadanie klientov, leads', keywords:['klient','zákazník','lead','B2B','enterprise'] },
-  mentorship:   { name:'Marek Novák',     role:'Mentor & Partner', company:'Credo Ventures', ico:'💡', desc:'Poradenstvo, mentoring, coaching', keywords:['mentor','rada','coaching','guidance'] },
-  partnership:  { name:'Peter Blaho',     role:'Ecosystem Lead', company:'Get IT', ico:'🔗', desc:'Partnerstvá, integrácie, kolaborácie', keywords:['partner','spolupráca','integration','joint'] },
-  technical:    { name:'Zuzana Mináčová', role:'CTO / Tech Lead', company:'SaaS Studio', ico:'⚙️', desc:'Technická pomoc, infraštruktúra, dev', keywords:['technický','bug','cloud','API','databáza'] },
-  other:        { name:'Marek Novák',     role:'Community Manager', company:'Get IT', ico:'○', desc:'Ostatné žiadosti', keywords:[] },
-};
+            <div id="view-messages" class="app-view-section content-wrapper" style="display: none;">
+                <h2 style="margin-top: 0;">Doručená pošta</h2>
+                <div class="panel">
+                    <div class="panel-header">Nedávne konverzácie</div>
+                    <div id="messages-list" style="display: flex; flex-direction: column; gap: 12px;">
+                        </div>
+                </div>
+            </div>
 
-const TIMELINE_LABELS = { '1_month':'1 mesiac','3_months':'3 mesiace','6_months':'6 mesiacov','12_months':'12 mesiacov' };
-const STAGE_LABELS = { pre_seed:'Pre-seed',seed:'Seed',series_a:'Series A',series_b:'Series B+',grant:'Grant / dotácia' };
+            <div id="view-settings" class="app-view-section content-wrapper" style="display: none;">
+                <h2 style="margin-top: 0;">Nastavenia profilu</h2>
+                <div class="panel" style="max-width: 500px;">
+                    <div class="panel-header">Osobné údaje</div>
+                    <div class="form-group">
+                        <label>Zobrazené meno</label>
+                        <input type="text" id="set-name">
+                    </div>
+                    <div class="form-group">
+                        <label>Typ účtu (Rola)</label>
+                        <input type="text" id="set-role" disabled style="opacity: 0.6;">
+                    </div>
+                    <button class="btn btn-green" id="save-settings-btn" style="margin-top: 10px;">Uložiť zmeny</button>
+                </div>
+            </div>
 
-let reqs=[], mems=[], curFilter='all', curReq=null, curTab='info';
-// in-app messages: { [reqId]: [{id,sender,text,time,mine}] }
-let msgStore={};
-// active global thread
-let globalThread=null;
-
-// ── SEED DATA ─────────────────────────────────────────────────
-const DEMO_REQS = [
-  {id:'F1A2',title:'Hľadám investora — 200 000 € seed round',description:'EdTech startup so 150 aktívnymi užívateľmi. Hľadáme seed investora na 200k€ počas 3 mesiacov na rozšírenie tímu a marketing.',requester_name:'Tomáš Kováč',requester_email:'tomas@edtech.sk',requester_type:'startup',company:'EduStart s.r.o.',category:'funding',priority:'urgent',status:'open',funding_amount:200000,funding_timeline:'3_months',funding_stage:'seed',created_at:new Date(Date.now()-1800000).toISOString(),updated_at:new Date().toISOString(),suggested_matches:[{name:'Marek Novák',role:'Partner',company:'Credo Ventures'}],assigned_to:'Zuzana Mináčová',internal_notes:null},
-  {id:'A1B2',title:'Hľadáme senior React developera',description:'Potrebujeme skúseného React developera s min. 4 rokmi skúseností. Full-remote možné.',requester_name:'Peter Novák',requester_email:'peter@startup.sk',requester_type:'startup',company:'TechStartup s.r.o.',category:'hiring',priority:'high',status:'open',created_at:new Date(Date.now()-3600000).toISOString(),updated_at:new Date().toISOString(),suggested_matches:[{name:'Jana Kováčová',role:'HR Director',company:'TechCorp SK'}],assigned_to:'Jana Kováčová',internal_notes:null},
-  {id:'E5F6',title:'Speaker na Startup Weekend Bratislava',description:'Hľadáme inšpiratívneho speakera na tému growth hacking. Október 2025.',requester_name:'Tomáš Beneš',requester_email:'tomas@sw.sk',requester_type:'community_member',company:'Startup Weekend BA',category:'speaking',priority:'medium',status:'in_progress',created_at:new Date(Date.now()-86400000).toISOString(),updated_at:new Date().toISOString(),suggested_matches:[],assigned_to:'Peter Blaho',internal_notes:null},
-  {id:'G7H8',title:'Social media kampaň pre SaaS launch',description:'Spúšťame B2B SaaS. Potrebujeme LinkedIn + Twitter kampaň.',requester_name:'Jana Mináčová',requester_email:'jana@saas.sk',requester_type:'startup',company:'SaaS.sk',category:'marketing',priority:'high',status:'open',created_at:new Date(Date.now()-172800000).toISOString(),updated_at:new Date().toISOString(),suggested_matches:[{name:'Lucia Horáková',role:'CMO',company:'GrowthLab'}],assigned_to:'Lucia Horáková',internal_notes:null},
-  {id:'I9J0',title:'Pomoc s B2B sales stratégiou',description:'HR tech startup. Poradenstvo k sales funnel pre enterprise.',requester_name:'Michal Varga',requester_email:'michal@hr.sk',requester_type:'startup',company:'HR Tech s.r.o.',category:'sales',priority:'medium',status:'resolved',created_at:new Date(Date.now()-259200000).toISOString(),updated_at:new Date().toISOString(),suggested_matches:[],assigned_to:'Tomáš Ferko',value_delivered:true,internal_notes:null},
-];
-
-// seed some demo messages
-const DEMO_MSGS = {
-  'F1A2': [
-    {id:'m1',sender:'Zuzana Mináčová',text:'Ahoj Tomáš, dostala som tvoju funding žiadosť. Môžeš mi poslať pitch deck? Rada sa pozriem na čísla.',time:'10:32',mine:false},
-    {id:'m2',sender:'Ty',text:'Ahoj Zuzana! Ďakujem za rýchlu reakciu. Pitch deck posielam na email, ale tu je krátke zhrnutie — ARR 80k€, MoM growth 15%, team 4 ľudia.',time:'10:45',mine:true},
-    {id:'m3',sender:'Zuzana Mináčová',text:'Vyzerá dobre! Môžeme si zavolať tento týždeň vo štvrtok o 14:00?',time:'11:02',mine:false},
-  ],
-  'E5F6': [
-    {id:'m1',sender:'Peter Blaho',text:'Ahoj, vidím žiadosť o speakera na Startup Weekend. Máme niekoľko skvelých kandidátov — chceš konkrétne mená?',time:'09:15',mine:false},
-    {id:'m2',sender:'Ty',text:'Áno prosím! Ideálne niekto kto má skúsenosť s growth hackingom v B2B SaaS.',time:'09:22',mine:true},
-  ],
-};
-
-document.addEventListener('DOMContentLoaded',()=>{ loadData(); setInterval(loadData,30000); });
-
-async function loadData(){
-  try{ await Promise.all([loadReqs(),loadMems(),loadStats()]); }
-  catch(e){ loadDemo(); }
-}
-
-async function loadReqs(){const r=await fetch(`${API}/requests?limit=100`);if(!r.ok)throw 0;const d=await r.json();reqs=d.items||[];renderAll();}
-async function loadMems(){const r=await fetch(`${API}/members`);if(!r.ok)throw 0;const d=await r.json();mems=d.items||[];renderMems();}
-async function loadStats(){const r=await fetch(`${API}/analytics`);if(!r.ok)throw 0;renderStats(await r.json());}
-
-function loadDemo(){
-  reqs=[...DEMO_REQS];
-  Object.entries(DEMO_MSGS).forEach(([k,v])=>{ msgStore[k]=[...v]; });
-  mems=[
-    {id:'m1',name:'Jana Kováčová',role:'HR Director',company:'TechCorp SK',expertise:['hiring'],availability:true,matches_resolved:12},
-    {id:'m2',name:'Marek Novák',role:'Partner',company:'Credo Ventures',expertise:['investment','mentorship'],availability:true,matches_resolved:8},
-    {id:'m3',name:'Lucia Horáková',role:'CMO',company:'GrowthLab',expertise:['marketing','sales'],availability:true,matches_resolved:15},
-    {id:'m4',name:'Peter Blaho',role:'Speaker Manager',company:'Get IT / Startup Grind BA',expertise:['speaking','partnership'],availability:true,matches_resolved:6},
-    {id:'m5',name:'Zuzana Mináčová',role:'Investment Lead / CTO',company:'Get IT',expertise:['funding','investment','technical'],availability:true,matches_resolved:20},
-    {id:'m6',name:'Tomáš Ferko',role:'Sales Director',company:'B2B Pros',expertise:['sales','client_search'],availability:true,matches_resolved:18},
-  ];
-  const bs={open:0,in_progress:0,resolved:0,closed:0};
-  const bc={};let urg=0;let fundingTotal=0;let fundingCount=0;
-  reqs.forEach(r=>{
-    bs[r.status]=(bs[r.status]||0)+1;
-    bc[r.category]=(bc[r.category]||0)+1;
-    if(r.priority==='urgent')urg++;
-    if(r.category==='funding'&&r.funding_amount){fundingTotal+=r.funding_amount;fundingCount++;}
-  });
-  const res=reqs.filter(r=>r.status==='resolved');
-  renderStats({total_requests:reqs.length,by_status:bs,by_category:bc,resolved_count:res.length,value_delivered_count:res.filter(r=>r.value_delivered).length,urgent:urg,active_members:mems.filter(m=>m.availability).length,funding_count:fundingCount,funding_total:fundingTotal});
-  renderAll();renderMems();renderRouteGrid();renderThreadList();
-  document.getElementById('msg-badge').style.display='block';
-}
-
-// ── STATS ─────────────────────────────────────────────────────
-function renderStats(d){
-  document.getElementById('s-total').textContent=d.total_requests||0;
-  document.getElementById('s-open').textContent=d.by_status?.open||0;
-  document.getElementById('s-urgent').textContent=d.urgent||0;
-  const fc=d.funding_count||reqs.filter(r=>r.category==='funding').length;
-  document.getElementById('s-funding').textContent=fc;
-  const ft=d.funding_total||reqs.filter(r=>r.category==='funding').reduce((s,r)=>s+(r.funding_amount||0),0);
-  document.getElementById('s-funding-amt').textContent=ft>0?`€${ft.toLocaleString()} celkom`:'—';
-  document.getElementById('active-ct').textContent=`${d.active_members||0} online`;
-  const catL=getCatLabels();
-  const bc=d.by_category||{};const mx=Math.max(...Object.values(bc),1);
-  const s=Object.entries(bc).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,7);
-  document.getElementById('cat-bars').innerHTML=s.length?s.map(([c,n])=>`<div class="cat-row"><div class="cat-lbl">${catL[c]||c}</div><div class="cat-track"><div class="cat-fill" style="width:${Math.round((n/mx)*100)}%"></div></div><div class="cat-num">${n}</div></div>`).join(''):'<div style="color:var(--text3);font-size:13px;padding:4px 0">Zatiaľ žiadne dáta</div>';
-}
-
-// ── RENDER ALL ────────────────────────────────────────────────
-function renderAll(){ renderReqs(); renderSb(); updBadge(); }
-
-function renderReqs(){
-  let f=[...reqs];
-  if(curFilter==='open')f=f.filter(r=>r.status==='open');
-  else if(curFilter==='in_progress')f=f.filter(r=>r.status==='in_progress');
-  else if(curFilter==='resolved')f=f.filter(r=>r.status==='resolved');
-  else if(curFilter==='urgent')f=f.filter(r=>r.priority==='urgent');
-  else if(curFilter==='funding')f=f.filter(r=>r.category==='funding');
-
-  const row=r=>{
-    const route=ROUTING_RULES[r.category];
-    const amtStr=r.funding_amount?` — €${Number(r.funding_amount).toLocaleString()}`:'';
-    return`<div class="trow" onclick="openDet('${r.id}')">
-      <div class="req-num">${r.id.slice(0,4)}</div>
-      <div><div class="req-ttl">${esc(r.title)}${amtStr?`<span style="font-size:11px;color:#0a9e6e;font-weight:700;margin-left:6px">${amtStr}</span>`:''}</div><div class="req-meta">${r.company||r.requester_type}${route?` · → ${route.name}`:''}</div></div>
-      <div>${catB(r.category)}</div>
-      <div>${prioB(r.priority)}</div>
-      <div>${statB(r.status)}</div>
-      <div style="font-size:12px;color:var(--text2)">${r.requester_name}</div>
-      <button class="mbtn" onclick="event.stopPropagation();openDet('${r.id}')">→</button>
-    </div>`;
-  };
-  const emp='<div class="empty"><div class="empty-ico">○</div><div class="empty-ttl">Žiadne výsledky</div></div>';
-  const rec=[...reqs].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,5);
-  document.getElementById('recent-list').innerHTML=rec.length?rec.map(row).join(''):emp;
-  const fullEl=document.getElementById('full-list');
-  if(fullEl)fullEl.innerHTML=f.length?f.map(row).join(''):emp;
-}
-
-function renderSb(){
-  document.getElementById('members-sb').innerHTML=(mems||[]).filter(m=>m.availability).slice(0,4).map(m=>`<div class="mem-item"><div class="mem-av">${ini(m.name)}</div><div><div class="mem-name">${m.name}</div><div class="mem-role">${m.role}</div></div><div class="av-dot av-${m.availability}"></div></div>`).join('');
-}
-
-function renderMems(){
-  const cL=getCatLabels();
-  document.getElementById('members-grid').innerHTML=(mems||[]).map(m=>`<div class="mc"><div class="mc-hd"><div class="mc-blob"></div><div style="display:flex;align-items:center;justify-content:space-between"><div class="mc-av">${ini(m.name)}</div><div class="mc-avd av-${m.availability}"></div></div><div class="mc-name">${m.name}</div><div class="mc-role">${m.role} · ${m.company}</div></div><div class="mc-bd"><div class="mc-tags">${(m.expertise||[]).map(e=>`<span class="badge b-${e}" style="font-size:11px">${cL[e]||e}</span>`).join('')}</div></div><div class="mc-ft">✓ ${m.matches_resolved} zhôd<button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="openMsgWith('${m.name}','${m.role}')">Napísať</button></div></div>`).join('');
-}
-
-// ── ROUTING GRID ──────────────────────────────────────────────
-function renderRouteGrid(){
-  document.getElementById('route-grid').innerHTML=Object.entries(ROUTING_RULES).map(([cat,rule])=>`
-    <div class="route-card">
-      <div class="rc-head">
-        <div class="rc-ico">${rule.ico}</div>
-        <div><div class="rc-cat">${getCatLabels()[cat]||cat}</div><div class="rc-sub">${rule.desc}</div></div>
-      </div>
-      <div class="rc-body">
-        <div class="rc-owner">
-          <div class="rc-av-sm">${ini(rule.name)}</div>
-          <div><div class="rc-owner-name">${rule.name}</div><div class="rc-owner-role">${rule.role} · ${rule.company}</div></div>
-        </div>
-        ${rule.keywords.length?`<div class="rc-keywords">${rule.keywords.slice(0,5).map(k=>`<span class="rc-kw">${k}</span>`).join('')}</div>`:''}
-      </div>
-    </div>`).join('');
-}
-
-// ── THREAD LIST (messages view) ───────────────────────────────
-function renderThreadList(){
-  const threads=reqs.filter(r=>(msgStore[r.id]||[]).length>0);
-  const el=document.getElementById('thread-list');
-  if(!el)return;
-  if(!threads.length){el.innerHTML='<div style="padding:20px;color:var(--text3);font-size:13px">Zatiaľ žiadne správy</div>';return;}
-  el.innerHTML=threads.map(r=>{
-    const msgs=msgStore[r.id]||[];
-    const last=msgs[msgs.length-1];
-    const active=globalThread===r.id?'background:#f2f2f8;':'';
-    return`<div style="padding:14px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;${active}" onclick="openThread('${r.id}')" onmouseenter="this.style.background='#f2f2f8'" onmouseleave="this.style.background='${active?'#f2f2f8':'transparent'}'">
-      <div style="display:flex;gap:10px;align-items:flex-start">
-        <div style="width:32px;height:32px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:11px;font-weight:800;color:var(--navy);flex-shrink:0">${ROUTING_RULES[r.category]?.ico||'○'}</div>
-        <div style="min-width:0;flex:1">
-          <div style="font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.title}</div>
-          <div style="font-size:11px;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${last.sender}: ${last.text.slice(0,40)}…</div>
-          <div style="font-size:10px;color:var(--text3);margin-top:3px">${last.time}</div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function openThread(reqId){
-  globalThread=reqId;
-  renderThreadList();
-  const r=reqs.find(x=>x.id===reqId);
-  if(!r)return;
-  document.getElementById('chat-title').textContent=r.title;
-  renderGlobalChat();
-}
-
-function renderGlobalChat(){
-  const el=document.getElementById('chat-msgs');
-  if(!el)return;
-  const msgs=msgStore[globalThread]||[];
-  if(!msgs.length){el.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:30px">Žiadne správy</div>';return;}
-  el.innerHTML=msgs.map(m=>msgBubble(m)).join('');
-  el.scrollTop=el.scrollHeight;
-}
-
-function sendGlobalMsg(){
-  const inp=document.getElementById('global-chat-inp');
-  const txt=inp.value.trim();if(!txt||!globalThread)return;
-  if(!msgStore[globalThread])msgStore[globalThread]=[];
-  msgStore[globalThread].push({id:'g'+Date.now(),sender:'Ty',text:txt,time:fmtTime(),mine:true});
-  inp.value='';renderGlobalChat();renderThreadList();
-  // simulate reply
-  const route=ROUTING_RULES[reqs.find(r=>r.id===globalThread)?.category||'other'];
-  setTimeout(()=>{
-    if(!msgStore[globalThread])return;
-    msgStore[globalThread].push({id:'r'+Date.now(),sender:route?.name||'Tím',text:'Ďakujem za správu, ozvem sa čoskoro!',time:fmtTime(),mine:false});
-    renderGlobalChat();renderThreadList();
-  },1400);
-}
-
-// ── DETAIL PANEL ──────────────────────────────────────────────
-function openDet(id){
-  const r=reqs.find(x=>x.id===id);if(!r)return;
-  curReq=r; curTab='info';
-  document.getElementById('d-id').textContent=`# ${r.id}`;
-  document.getElementById('d-title').textContent=r.title;
-  document.getElementById('d-badges').innerHTML=`${catB(r.category)} ${prioB(r.priority)} ${statB(r.status)}`;
-  document.getElementById('d-desc').textContent=r.description;
-  document.getElementById('d-req').textContent=r.requester_name;
-  document.getElementById('d-co').textContent=r.company||'—';
-  document.getElementById('d-em').textContent=r.requester_email;
-  document.getElementById('d-asgn').textContent=r.assigned_to||'Nepriradené';
-  document.getElementById('d-cr').textContent=fmtD(r.created_at);
-  document.getElementById('d-up').textContent=fmtD(r.updated_at);
-  document.getElementById('d-notes').textContent=r.internal_notes||'—';
-
-  // funding highlight
-  const fh=document.getElementById('det-funding-highlight');
-  if(r.category==='funding'&&r.funding_amount){
-    fh.style.display='block';
-    document.getElementById('det-amount').textContent=`€${Number(r.funding_amount).toLocaleString()}`;
-    document.getElementById('det-period').textContent=`${TIMELINE_LABELS[r.funding_timeline]||''} · ${STAGE_LABELS[r.funding_stage]||''}`;
-  } else { fh.style.display='none'; }
-
-  // routed bar
-  const route=ROUTING_RULES[r.category];
-  const rb=document.getElementById('routed-bar');
-  if(route){
-    rb.style.display='flex';
-    document.getElementById('rb-person').innerHTML=`<div class="rb-av">${ini(route.name)}</div>${route.name} <span style="font-size:11px;color:var(--text2);font-weight:400">· ${route.role}</span>`;
-  } else { rb.style.display='none'; }
-
-  // matches
-  const ms=r.suggested_matches||[];
-  document.getElementById('d-matches').innerHTML=ms.length?ms.map(m=>`<div class="match-card"><div class="match-av">${ini(m.name)}</div><div><div style="font-size:13px;font-weight:500;color:var(--navy)">${m.name}</div><div style="font-size:11px;color:var(--text2)">${m.role||''} · ${m.company||''}</div></div><button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="startChatFrom('${id}','${m.name}')">Napísať</button></div>`).join(''):'<div style="color:var(--text3);font-size:13px">Žiadne zhody</div>';
-
-  switchTab('info');
-  renderDetChat();
-  document.getElementById('det-overlay').classList.add('open');
-}
-
-function startChatFrom(reqId,person){
-  switchTab('chat');
-  const inp=document.getElementById('det-chat-inp');
-  inp.focus();
-  showToast(`Chat s ${person} otvorený`);
-}
-
-function renderDetChat(){
-  if(!curReq)return;
-  if(!msgStore[curReq.id])msgStore[curReq.id]=[];
-  const msgs=msgStore[curReq.id];
-  const route=ROUTING_RULES[curReq.category];
-  const el=document.getElementById('det-chat-msgs');
-  if(!el)return;
-  if(!msgs.length){
-    el.innerHTML=`<div style="text-align:center;padding:20px 10px">
-      <div style="font-size:28px;margin-bottom:8px">${route?.ico||'💬'}</div>
-      <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:4px">Napíšte priamo ${route?.name||'zodpovednej osobe'}</div>
-      <div style="font-size:12px;color:var(--text2)">${route?.role||''} · ${route?.company||''}</div>
-    </div>`;
-    return;
-  }
-  const sysMsg=`<div class="chat-system">Auto-routed k ${route?.name||'tímu'}</div>`;
-  el.innerHTML=sysMsg+msgs.map(m=>msgBubble(m)).join('');
-  el.scrollTop=el.scrollHeight;
-  document.getElementById('chat-unread-badge').style.display='none';
-}
-
-function msgBubble(m){
-  return`<div class="msg ${m.mine?'mine':'theirs'}">
-    <div class="msg-av ${m.mine?'msg-av-navy':''}" style="${m.mine?'background:var(--navy);color:var(--mint)':''}">${ini(m.sender)}</div>
-    <div>
-      ${!m.mine?`<div class="msg-sender">${m.sender}</div>`:''}
-      <div class="msg-bubble">${esc(m.text)}</div>
-      <div class="msg-meta">${m.time}</div>
+        </main>
     </div>
   </div>`;
 }
