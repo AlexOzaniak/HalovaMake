@@ -1,95 +1,1057 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ecosystem AI - Finder & Seeker</title>
-    
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>zero one hundred — Request Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Red+Hat+Text:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --mint:#0FEFAA; --mint2:#11EDE2; --navy:#171642; --navy2:#1e1d55;
+  --grey1:#CACADD; --grey2:#676789; --white:#fff;
+  --grad:linear-gradient(135deg,#0FEFAA 0%,#11EDE2 100%);
+  --bg:#f7f7fb; --surface:#fff;
+  --border:rgba(23,22,66,.08); --border2:rgba(23,22,66,.14);
+  --radius:16px; --rsm:10px;
+  --text:#171642; --text2:#676789; --text3:#CACADD;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Red Hat Text',sans-serif;font-size:14px;line-height:1.6;min-height:100vh;}
+
+/* ── LAYOUT ── */
+.shell{display:flex;min-height:100vh;}
+.sidebar{width:256px;min-width:256px;background:var(--navy);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow:hidden;}
+.sidebar::after{content:'';position:absolute;bottom:-60px;right:-80px;width:220px;height:220px;background:var(--grad);border-radius:60% 40% 55% 45%/50% 60% 40% 50%;opacity:.1;pointer-events:none;}
+.main{margin-left:256px;flex:1;padding:36px 40px;max-width:100%;}
+
+/* ── SIDEBAR ── */
+.logo-wrap{padding:28px 24px 22px;border-bottom:1px solid rgba(255,255,255,.07);position:relative;}
+.logo-blob{position:absolute;top:18px;right:20px;width:36px;height:36px;background:var(--grad);border-radius:60% 40% 55% 45%/50% 60% 40% 50%;opacity:.7;}
+.logo-wm{font-family:'Sora',sans-serif;font-weight:600;font-size:16px;line-height:1.25;color:var(--white);}
+.logo-wm b{color:var(--mint);font-weight:800;}
+.logo-tag{font-size:10px;color:rgba(255,255,255,.3);margin-top:4px;letter-spacing:1px;text-transform:uppercase;}
+.nav{padding:18px 14px;flex:1;}
+.nav-sec{margin-bottom:24px;}
+.nav-lbl{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.22);padding:0 10px;margin-bottom:6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--rsm);cursor:pointer;color:rgba(255,255,255,.5);font-size:13.5px;transition:all .15s;margin-bottom:2px;position:relative;user-select:none;}
+.nav-item:hover{background:rgba(255,255,255,.07);color:var(--white);}
+.nav-item.active{background:rgba(15,239,170,.12);color:var(--mint);}
+.nav-item.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:3px;background:var(--mint);border-radius:2px;}
+.nav-ico{font-size:15px;width:18px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--mint);color:var(--navy);font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;}
+.nav-badge-msg{margin-left:auto;background:#e74c3c;color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;}
+.sb-foot{padding:16px 24px;border-top:1px solid rgba(255,255,255,.07);font-size:11.5px;color:rgba(255,255,255,.3);display:flex;align-items:center;gap:7px;}
+.pulse{width:7px;height:7px;border-radius:50%;background:var(--mint);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px;}
+.page-title{font-family:'Sora',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.5px;}
+.page-sub{font-size:13px;color:var(--text2);margin-top:3px;}
+.topbar-acts{display:flex;gap:10px;align-items:center;padding-top:4px;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:var(--rsm);font-family:'Red Hat Text',sans-serif;font-size:13.5px;font-weight:500;cursor:pointer;border:none;transition:all .15s;}
+.btn-navy{background:var(--navy);color:var(--white);}
+.btn-navy:hover{background:var(--navy2);transform:translateY(-1px);box-shadow:0 6px 20px rgba(23,22,66,.25);}
+.btn-mint{background:var(--grad);color:var(--navy);font-weight:700;}
+.btn-mint:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(15,239,170,.4);}
+.btn-ghost{background:var(--white);color:var(--text2);border:1px solid var(--border2);}
+.btn-ghost:hover{background:var(--bg);color:var(--navy);}
+.btn-danger{background:rgba(231,76,60,.08);color:#c0392b;border:1px solid rgba(231,76,60,.2);}
+.btn-danger:hover{background:rgba(231,76,60,.15);}
+.btn-sm{padding:6px 14px;font-size:12px;}
+
+/* ── STAT CARDS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px 20px;position:relative;overflow:hidden;transition:box-shadow .2s,transform .2s;}
+.sc:hover{box-shadow:0 8px 32px rgba(23,22,66,.1);transform:translateY(-2px);}
+.sc-dk{background:var(--navy);border-color:var(--navy);}
+.sc-blob{position:absolute;bottom:-20px;right:-20px;width:80px;height:80px;background:var(--grad);border-radius:60% 40% 55% 45%/50% 60% 40% 50%;opacity:.12;pointer-events:none;}
+.sc-dk .sc-blob{opacity:.2;}
+.sc-lbl{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text2);margin-bottom:10px;}
+.sc-dk .sc-lbl{color:rgba(255,255,255,.45);}
+.sc-val{font-family:'Sora',sans-serif;font-size:36px;font-weight:800;letter-spacing:-1.5px;line-height:1;color:var(--navy);}
+.sc-dk .sc-val{color:var(--mint);}
+.sc-sub{font-size:12px;margin-top:8px;color:var(--text3);}
+.sc-dk .sc-sub{color:rgba(255,255,255,.3);}
+.delta-up{color:#0a9e6e!important;font-weight:500;}
+
+/* ── GRID ── */
+.grid-2{display:grid;grid-template-columns:1fr 300px;gap:20px;margin-bottom:24px;}
+
+/* ── PANEL ── */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.panel-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);}
+.panel-title{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;color:var(--navy);}
+
+/* ── FILTERS ── */
+.filters{display:flex;gap:8px;padding:14px 22px;border-bottom:1px solid var(--border);background:var(--bg);flex-wrap:wrap;}
+.fbtn{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border2);background:transparent;color:var(--text2);font-family:'Red Hat Text',sans-serif;transition:all .15s;}
+.fbtn:hover{border-color:var(--navy);color:var(--navy);}
+.fbtn.active{background:var(--navy);border-color:var(--navy);color:var(--white);}
+
+/* ── TABLE ── */
+.trow{display:grid;grid-template-columns:36px 1fr 130px 90px 100px 120px 36px;align-items:center;gap:12px;padding:13px 22px;border-bottom:1px solid var(--border);transition:background .1s;cursor:pointer;}
+.trow:hover{background:#f2f2f8;}
+.trow:last-child{border-bottom:none;}
+.thead{font-size:11px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--text3);background:var(--bg);cursor:default;}
+.thead:hover{background:var(--bg);}
+.req-num{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--text3);}
+.req-ttl{font-size:13.5px;font-weight:500;color:var(--navy);margin-bottom:2px;}
+.req-meta{font-size:11px;color:var(--text2);}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;font-family:'Red Hat Text',sans-serif;}
+.b-urgent{background:rgba(23,22,66,.08);color:#c0392b;border:1.5px solid rgba(192,57,43,.2);}
+.b-high{background:rgba(230,126,34,.1);color:#c0653a;border:1.5px solid rgba(230,126,34,.2);}
+.b-medium{background:rgba(15,239,170,.15);color:#0a9e6e;border:1.5px solid rgba(15,239,170,.3);}
+.b-low{background:rgba(103,103,137,.08);color:var(--grey2);border:1.5px solid var(--border);}
+.b-open{background:rgba(15,239,170,.12);color:#0a9e6e;border:1.5px solid rgba(15,239,170,.3);}
+.b-in-progress{background:rgba(23,22,66,.07);color:var(--navy2);border:1.5px solid rgba(23,22,66,.15);}
+.b-resolved{background:var(--navy);color:var(--mint);border:1.5px solid var(--navy);}
+.b-closed{background:var(--bg);color:var(--grey2);border:1.5px solid var(--border2);}
+.b-hiring{background:rgba(15,239,170,.1);color:#0a9e6e;}
+.b-investment,.b-funding{background:rgba(23,22,66,.1);color:var(--navy2);border:1px solid rgba(23,22,66,.15);}
+.b-speaking{background:rgba(17,237,226,.12);color:#0b8a8a;}
+.b-marketing{background:rgba(15,239,170,.08);color:#0a9e6e;}
+.b-sales{background:rgba(103,103,137,.08);color:var(--grey2);}
+.b-technical{background:rgba(202,202,221,.3);color:var(--grey2);}
+.b-other{background:var(--bg);color:var(--grey2);}
+/* funding highlight */
+.b-funding{background:linear-gradient(90deg,rgba(15,239,170,.15),rgba(17,237,226,.1));color:var(--navy);border:1.5px solid rgba(15,239,170,.4);font-weight:700;}
+
+/* ── MINI BTN ── */
+.mbtn{width:30px;height:30px;border-radius:8px;border:1.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .12s;}
+.mbtn:hover{background:var(--navy);color:var(--mint);border-color:var(--navy);}
+
+/* ── MEMBERS SIDEBAR ── */
+.mem-item{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);transition:background .1s;}
+.mem-item:hover{background:#f2f2f8;}
+.mem-item:last-child{border-bottom:none;}
+.mem-av{width:36px;height:36px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:12px;font-weight:800;color:var(--navy);flex-shrink:0;}
+.mem-name{font-size:13px;font-weight:500;color:var(--navy);}
+.mem-role{font-size:11px;color:var(--text2);}
+.av-dot{margin-left:auto;width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.av-true{background:var(--mint);}
+.av-false{background:var(--grey1);}
+
+/* ── CATEGORY BARS ── */
+.cat-bars{padding:16px 22px;}
+.cat-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.cat-lbl{width:110px;font-size:12px;color:var(--text2);flex-shrink:0;}
+.cat-track{flex:1;height:5px;background:var(--bg);border-radius:3px;overflow:hidden;}
+.cat-fill{height:100%;background:var(--grad);border-radius:3px;transition:width .7s ease;}
+.cat-num{width:24px;font-size:12px;color:var(--text3);text-align:right;flex-shrink:0;}
+
+/* ── MODAL BASE ── */
+.mo-overlay{position:fixed;inset:0;background:rgba(23,22,66,.5);backdrop-filter:blur(6px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.mo-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--white);border-radius:20px;width:580px;max-width:95vw;max-height:92vh;overflow-y:auto;transform:translateY(20px) scale(.97);transition:transform .22s cubic-bezier(.4,0,.2,1);box-shadow:0 24px 80px rgba(23,22,66,.2);}
+.mo-overlay.open .modal{transform:translateY(0) scale(1);}
+.mo-head{display:flex;align-items:center;justify-content:space-between;padding:24px 26px 18px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.mo-head::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad);}
+.mo-title{font-family:'Sora',sans-serif;font-size:17px;font-weight:800;color:var(--navy);}
+.mo-close{width:32px;height:32px;border-radius:8px;border:1.5px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.mo-close:hover{background:var(--navy);color:var(--white);border-color:var(--navy);}
+.mo-body{padding:24px 26px;}
+.mo-foot{padding:16px 26px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+.form-row{margin-bottom:18px;}
+.form-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.form-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px;}
+.lbl{display:block;font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--navy2);margin-bottom:6px;}
+.inp,.sel,.ta{width:100%;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--rsm);color:var(--navy);font-family:'Red Hat Text',sans-serif;font-size:13.5px;padding:10px 14px;transition:border-color .15s,box-shadow .15s;outline:none;appearance:none;-webkit-appearance:none;}
+.inp:focus,.sel:focus,.ta:focus{border-color:var(--mint);box-shadow:0 0 0 3px rgba(15,239,170,.18);}
+.inp::placeholder,.ta::placeholder{color:var(--grey1);}
+.ta{resize:vertical;min-height:90px;}
+
+/* FUNDING special section */
+.funding-box{background:linear-gradient(135deg,rgba(15,239,170,.06),rgba(17,237,226,.04));border:1.5px solid rgba(15,239,170,.25);border-radius:var(--rsm);padding:16px 18px;margin-bottom:18px;}
+.funding-box-title{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.funding-badge{background:var(--grad);color:var(--navy);font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px;letter-spacing:.3px;}
+
+/* AI result */
+.ai-box{background:linear-gradient(135deg,rgba(15,239,170,.05),rgba(17,237,226,.03));border:1.5px solid rgba(15,239,170,.22);border-radius:var(--rsm);padding:16px 18px;margin-top:16px;}
+.ai-ttl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#0a9e6e;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.ai-row{display:flex;gap:8px;margin-bottom:6px;align-items:center;}
+.ai-key{color:var(--text2);width:110px;flex-shrink:0;font-size:13px;}
+.ai-val{font-weight:600;color:var(--navy);font-size:13px;}
+
+/* routing preview chip */
+.route-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:rgba(23,22,66,.05);border:1.5px solid var(--border2);border-radius:20px;font-size:12px;font-weight:500;color:var(--navy);}
+.route-chip .rc-av{width:20px;height:20px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:var(--navy);}
+
+/* ── DETAIL PANEL ── */
+.det-overlay{position:fixed;inset:0;background:rgba(23,22,66,.4);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:stretch;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .2s;}
+.det-overlay.open{opacity:1;pointer-events:all;}
+.det-panel{width:520px;max-width:95vw;background:var(--white);display:flex;flex-direction:column;transform:translateX(30px);transition:transform .25s cubic-bezier(.4,0,.2,1);overflow:hidden;border-left:1px solid var(--border);}
+.det-overlay.open .det-panel{transform:translateX(0);}
+
+/* detail panel tabs */
+.det-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--bg);}
+.det-tab{flex:1;padding:12px 0;text-align:center;font-size:12.5px;font-weight:600;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;user-select:none;}
+.det-tab:hover{color:var(--navy);}
+.det-tab.active{color:var(--navy);border-bottom-color:var(--mint);}
+.det-tab-badge{display:inline-block;background:#e74c3c;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;margin-left:5px;vertical-align:middle;}
+
+.det-head{padding:22px 24px 16px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;background:var(--navy);}
+.det-head::before{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--grad);}
+.det-head::after{content:'';position:absolute;bottom:-40px;right:-40px;width:150px;height:150px;background:var(--grad);border-radius:60% 40% 55% 45%/50% 60% 40% 50%;opacity:.15;pointer-events:none;}
+.det-id{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.2px;color:var(--mint);margin-bottom:5px;text-transform:uppercase;}
+.det-title{font-family:'Sora',sans-serif;font-size:17px;font-weight:800;color:var(--white);margin-bottom:10px;line-height:1.3;}
+.det-badges{display:flex;gap:6px;flex-wrap:wrap;}
+
+/* routed-to bar */
+.routed-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(15,239,170,.08);border-bottom:1px solid rgba(15,239,170,.15);}
+.rb-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:#0a9e6e;}
+.rb-person{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--navy);}
+.rb-av{width:26px;height:26px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:9px;font-weight:800;color:var(--navy);}
+.rb-write{margin-left:auto;}
+
+/* detail body */
+.det-body{flex:1;overflow-y:auto;}
+.det-scroll{padding:20px 24px;}
+.det-sec{margin-bottom:20px;}
+.det-sec-ttl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:10px;}
+.det-desc{font-size:13.5px;color:var(--text2);line-height:1.75;}
+.det-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.det-ml{font-size:11px;color:var(--text3);margin-bottom:3px;}
+.det-mv{font-size:13px;font-weight:500;color:var(--navy);}
+
+/* funding highlight in detail */
+.funding-detail{background:linear-gradient(135deg,rgba(15,239,170,.06),rgba(17,237,226,.04));border:1.5px solid rgba(15,239,170,.25);border-radius:var(--rsm);padding:14px 16px;margin-bottom:16px;}
+.fd-amount{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:var(--navy);letter-spacing:-1px;}
+.fd-period{font-size:13px;color:var(--text2);margin-top:2px;}
+
+.match-card{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rsm);margin-bottom:8px;}
+.match-card:last-child{margin-bottom:0;}
+.match-av{width:30px;height:30px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:10px;font-weight:800;color:var(--navy);flex-shrink:0;}
+
+/* ── CHAT TAB ── */
+.chat-wrap{display:flex;flex-direction:column;height:100%;}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px;min-height:300px;}
+.msg{display:flex;gap:9px;align-items:flex-end;}
+.msg.mine{flex-direction:row-reverse;}
+.msg-av{width:28px;height:28px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:9px;font-weight:800;color:var(--navy);flex-shrink:0;}
+.msg-av-navy{background:var(--navy);}
+.msg-bubble{max-width:75%;padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.55;}
+.msg.theirs .msg-bubble{background:var(--bg);border:1px solid var(--border);color:var(--navy);border-bottom-left-radius:4px;}
+.msg.mine .msg-bubble{background:var(--navy);color:var(--white);border-bottom-right-radius:4px;}
+.msg-meta{font-size:10px;color:var(--text3);margin-top:3px;text-align:right;}
+.msg.theirs .msg-meta{text-align:left;}
+.msg-sender{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:3px;}
+
+.chat-input-wrap{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:flex-end;}
+.chat-input{flex:1;background:var(--bg);border:1.5px solid var(--border2);border-radius:12px;padding:10px 14px;font-family:'Red Hat Text',sans-serif;font-size:13.5px;color:var(--navy);outline:none;resize:none;min-height:42px;max-height:120px;line-height:1.5;}
+.chat-input:focus{border-color:var(--mint);box-shadow:0 0 0 3px rgba(15,239,170,.15);}
+.chat-send{width:40px;height:40px;border-radius:10px;background:var(--navy);border:none;color:var(--mint);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:all .15s;}
+.chat-send:hover{background:var(--navy2);transform:scale(1.05);}
+
+.chat-system{text-align:center;font-size:11px;color:var(--text3);padding:4px 0;display:flex;align-items:center;gap:8px;}
+.chat-system::before,.chat-system::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* det footer */
+.det-foot{padding:14px 24px;border-top:1px solid var(--border);display:flex;gap:8px;}
+
+/* ── ROUTING RULES VIEW ── */
+.route-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+.route-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:box-shadow .2s,transform .2s;}
+.route-card:hover{box-shadow:0 6px 24px rgba(23,22,66,.1);transform:translateY(-2px);}
+.rc-head{background:var(--navy);padding:16px 18px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;}
+.rc-head::after{content:'';position:absolute;bottom:-20px;right:-20px;width:70px;height:70px;background:var(--grad);border-radius:50%;opacity:.2;}
+.rc-ico{width:36px;height:36px;border-radius:10px;background:rgba(15,239,170,.15);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.rc-cat{font-family:'Sora',sans-serif;font-size:13px;font-weight:800;color:var(--white);}
+.rc-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:1px;}
+.rc-body{padding:14px 18px;}
+.rc-owner{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-radius:var(--rsm);margin-bottom:10px;}
+.rc-av-sm{width:32px;height:32px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:11px;font-weight:800;color:var(--navy);flex-shrink:0;}
+.rc-owner-name{font-size:13px;font-weight:600;color:var(--navy);}
+.rc-owner-role{font-size:11px;color:var(--text2);}
+.rc-keywords{display:flex;flex-wrap:wrap;gap:5px;}
+.rc-kw{background:rgba(15,239,170,.08);border:1px solid rgba(15,239,170,.2);color:#0a9e6e;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;}
+
+/* ── MEMBERS GRID ── */
+.mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+.mc{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:box-shadow .2s,transform .2s;}
+.mc:hover{box-shadow:0 8px 28px rgba(23,22,66,.1);transform:translateY(-2px);}
+.mc-hd{background:var(--navy);padding:20px 20px 14px;position:relative;overflow:hidden;}
+.mc-blob{position:absolute;bottom:-20px;right:-20px;width:80px;height:80px;background:var(--grad);border-radius:60% 40% 55% 45%/50% 60% 40% 50%;opacity:.2;}
+.mc-av{width:44px;height:44px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:var(--navy);margin-bottom:10px;}
+.mc-name{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;color:var(--white);}
+.mc-role{font-size:12px;color:rgba(255,255,255,.45);margin-top:2px;}
+.mc-bd{padding:14px 20px 10px;}
+.mc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
+.mc-ft{padding:10px 20px;border-top:1px solid var(--border);font-size:12px;color:var(--text2);display:flex;align-items:center;gap:6px;}
+.mc-avd{width:7px;height:7px;border-radius:50%;margin-left:auto;}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:500;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--navy);border-radius:12px;padding:12px 18px;font-size:13px;color:var(--white);display:flex;align-items:center;gap:10px;min-width:280px;box-shadow:0 8px 30px rgba(23,22,66,.3);animation:sUp .3s ease;border-left:3px solid var(--mint);}
+.toast.err{border-left-color:#e74c3c;}
+@keyframes sUp{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ── EMPTY ── */
+.empty{padding:52px 24px;text-align:center;color:var(--text3);}
+.empty-ico{font-size:38px;margin-bottom:12px;opacity:.4;}
+.empty-ttl{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;color:var(--text2);margin-bottom:5px;}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--grey1);border-radius:3px;}
+
+@media(max-width:1100px){.stats-row{grid-template-columns:repeat(2,1fr);}.grid-2{grid-template-columns:1fr;}}
+@media(max-width:720px){
+  .sidebar{width:60px;min-width:60px;}
+  .logo-wm,.logo-tag,.nav-lbl,.nav-badge,.nav-badge-msg,.sb-foot span:not(.pulse){display:none;}
+  .nav-item span:not(.nav-ico){display:none;}
+  .main{margin-left:60px;padding:20px 16px;}
+}
+</style>
 </head>
 <body>
+<div class="shell">
 
-    <div id="toast-container"></div>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-blob"></div>
+    <div class="logo-wm">zero<br><b>one</b><br>hundred</div>
+    <div class="logo-tag">Request Hub</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-sec">
+      <div class="nav-lbl">Hlavná</div>
+      <div class="nav-item active" onclick="showView('dashboard',this)"><span class="nav-ico">◈</span><span>Dashboard</span></div>
+      <div class="nav-item" onclick="showView('requests',this)"><span class="nav-ico">≡</span><span>Žiadosti</span><span class="nav-badge" id="open-badge">0</span></div>
+      <div class="nav-item" onclick="showView('messages',this)"><span class="nav-ico">✉</span><span>Správy</span><span class="nav-badge-msg" id="msg-badge" style="display:none">3</span></div>
+      <div class="nav-item" onclick="showView('members',this)"><span class="nav-ico">◎</span><span>Komunita</span></div>
+      <div class="nav-item" onclick="showView('routing',this)"><span class="nav-ico">⇢</span><span>Auto-routing</span></div>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-lbl">Integrácie</div>
+      <div class="nav-item" onclick="showToast('Notion sync aktívny ✓')"><span class="nav-ico">N</span><span>Notion</span></div>
+      <div class="nav-item" onclick="showToast('Email automation aktívna ✓')"><span class="nav-ico">@</span><span>Email</span></div>
+    </div>
+    <div class="nav-sec">
+      <div class="nav-lbl">Systém</div>
+      <div class="nav-item"><span class="nav-ico">⚙</span><span>Nastavenia</span></div>
+    </div>
+  </nav>
+  <div class="sb-foot"><div class="pulse"></div><span>API online</span></div>
+</aside>
 
-    <div id="auth-view" class="active">
-        <div class="panel" style="width: 100%; max-width: 400px; text-align: center;">
-            <div class="brand-icon" style="margin: 0 auto 20px; width: 48px; height: 48px;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-            </div>
-            <h1 style="margin: 0 0 24px 0; font-size: 1.5rem;">ECOSYSTEM AI</h1>
-            
-            <div id="login-section">
-                <form id="login-form">
-                    <div class="form-group">
-                        <input type="email" id="login-email" required placeholder="Email (napr. alex@eco.ai)">
-                    </div>
-                    <div class="form-group">
-                        <input type="password" id="login-password" required placeholder="Heslo">
-                    </div>
-                    <button type="submit" class="btn" style="width: 100%;" id="login-btn">Prihlásiť sa</button>
-                </form>
-                <div class="auth-switch">
-                    Nemáš účet? <span id="go-to-register">Zaregistruj sa</span>
-                </div>
-            </div>
+<!-- MAIN -->
+<main class="main">
 
-            <div id="register-section" style="display: none;">
-                <form id="register-form">
-                    <div class="form-group">
-                        <input type="text" id="reg-name" required placeholder="Celé meno">
-                    </div>
-                    <div class="form-group">
-                        <input type="email" id="reg-email" required placeholder="Email">
-                    </div>
-                    <div class="form-group">
-                        <input type="password" id="reg-password" required placeholder="Heslo (min. 6 znakov)" minlength="6">
-                    </div>
-                    <div class="form-group">
-                        <select id="reg-role" required>
-                            <option value="finder">Som Finder (Hľadám riešenia/startup)</option>
-                            <option value="seeker">Som Seeker (Hľadám investora/pomoc)</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-green" style="width: 100%;" id="reg-btn">Vytvoriť účet</button>
-                </form>
-                <div class="auth-switch">
-                    Už máš účet? <span id="go-to-login">Prihlás sa</span>
-                </div>
+<!-- ═══ DASHBOARD ═══ -->
+<div id="view-dashboard">
+  <div class="topbar">
+    <div><div class="page-title">Dashboard</div><div class="page-sub">Prehľad komunity v reálnom čase</div></div>
+    <div class="topbar-acts">
+      <button class="btn btn-ghost" onclick="loadData()">↻ Refresh</button>
+      <button class="btn btn-mint" onclick="openModal()">+ Nová žiadosť</button>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="sc sc-dk"><div class="sc-blob"></div><div class="sc-lbl">Celkom žiadostí</div><div class="sc-val" id="s-total">0</div><div class="sc-sub">Všetky časy</div></div>
+    <div class="sc"><div class="sc-blob"></div><div class="sc-lbl">Otvorené</div><div class="sc-val" id="s-open">0</div><div class="sc-sub">Čakajú na riešenie</div></div>
+    <div class="sc"><div class="sc-blob"></div><div class="sc-lbl">Funding žiadosti</div><div class="sc-val" id="s-funding">0</div><div class="sc-sub delta-up" id="s-funding-amt">—</div></div>
+    <div class="sc"><div class="sc-blob"></div><div class="sc-lbl">Urgentné</div><div class="sc-val" id="s-urgent">0</div><div class="sc-sub">Potrebujú pozornosť</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-hd"><div class="panel-title">Najnovšie žiadosti</div><button class="btn btn-ghost btn-sm" onclick="showView('requests',null)">Všetky →</button></div>
+      <div class="trow thead"><div></div><div>Žiadosť</div><div>Kategória</div><div>Priorita</div><div>Stav</div><div>Odosielateľ</div><div></div></div>
+      <div id="recent-list"><div class="empty"><div class="empty-ico">○</div><div class="empty-ttl">Žiadne žiadosti</div></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div class="panel">
+        <div class="panel-hd"><div class="panel-title">Kategórie</div></div>
+        <div class="cat-bars" id="cat-bars"><div style="color:var(--text3);font-size:13px;padding:4px 0">Zatiaľ žiadne dáta</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hd"><div class="panel-title">Aktívni členovia</div><div style="font-size:12px;color:#0a9e6e;font-weight:600" id="active-ct">0 online</div></div>
+        <div id="members-sb"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ REQUESTS ═══ -->
+<div id="view-requests" style="display:none">
+  <div class="topbar">
+    <div><div class="page-title">Žiadosti</div><div class="page-sub">Všetky komunitné žiadosti</div></div>
+    <div class="topbar-acts"><button class="btn btn-ghost" onclick="loadData()">↻</button><button class="btn btn-mint" onclick="openModal()">+ Nová žiadosť</button></div>
+  </div>
+  <div class="panel">
+    <div class="filters">
+      <button class="fbtn active" onclick="setFilter('all',this)">Všetky</button>
+      <button class="fbtn" onclick="setFilter('open',this)">Otvorené</button>
+      <button class="fbtn" onclick="setFilter('in_progress',this)">V riešení</button>
+      <button class="fbtn" onclick="setFilter('resolved',this)">Vyriešené</button>
+      <button class="fbtn" onclick="setFilter('urgent',this)">Urgentné</button>
+      <button class="fbtn" onclick="setFilter('funding',this)" style="border-color:rgba(15,239,170,.4);color:#0a9e6e">💰 Funding</button>
+    </div>
+    <div class="trow thead"><div></div><div>Žiadosť</div><div>Kategória</div><div>Priorita</div><div>Stav</div><div>Odosielateľ</div><div></div></div>
+    <div id="full-list"><div class="empty"><div class="empty-ico">○</div><div class="empty-ttl">Žiadne žiadosti</div></div></div>
+  </div>
+</div>
+
+<!-- ═══ MESSAGES ═══ -->
+<div id="view-messages" style="display:none">
+  <div class="topbar">
+    <div><div class="page-title">Správy</div><div class="page-sub">In-app komunikácia ku žiadostiam</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:320px 1fr;gap:0;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;height:600px;">
+    <!-- thread list -->
+    <div style="border-right:1px solid var(--border);display:flex;flex-direction:column;">
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:var(--navy);">Konverzácie</div>
+      <div id="thread-list" style="flex:1;overflow-y:auto;"></div>
+    </div>
+    <!-- chat area -->
+    <div style="display:flex;flex-direction:column;">
+      <div id="chat-header" style="padding:14px 20px;border-bottom:1px solid var(--border);background:var(--bg);display:flex;align-items:center;gap:12px;">
+        <div style="font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:var(--navy)" id="chat-title">Vyberte konverzáciu</div>
+      </div>
+      <div id="chat-msgs" style="flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px;"></div>
+      <div style="padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:flex-end;">
+        <textarea class="chat-input" id="global-chat-inp" placeholder="Napíšte správu…" rows="1" onkeydown="handleChatKey(event,'global')"></textarea>
+        <button class="chat-send" onclick="sendGlobalMsg()">➤</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MEMBERS ═══ -->
+<div id="view-members" style="display:none">
+  <div class="topbar"><div><div class="page-title">Komunita</div><div class="page-sub">Experti dostupní na pomoc</div></div></div>
+  <div class="mg" id="members-grid"></div>
+</div>
+
+<!-- ═══ AUTO-ROUTING ═══ -->
+<div id="view-routing" style="display:none">
+  <div class="topbar">
+    <div><div class="page-title">Auto-routing pravidlá</div><div class="page-sub">Každá kategória → automaticky priradená správna osoba</div></div>
+  </div>
+  <!-- info banner -->
+  <div style="background:linear-gradient(135deg,rgba(15,239,170,.08),rgba(17,237,226,.05));border:1.5px solid rgba(15,239,170,.25);border-radius:var(--radius);padding:16px 22px;margin-bottom:24px;display:flex;align-items:center;gap:14px;">
+    <div style="font-size:24px;">⇢</div>
+    <div>
+      <div style="font-family:'Sora',sans-serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:3px;">Ako funguje auto-routing</div>
+      <div style="font-size:13px;color:var(--text2);">Keď príde žiadosť, systém automaticky určí kategóriu a pošle notifikáciu zodpovednej osobe. Napríklad <b>speaking → Speaker Manager u Get IT</b>, <b>funding → Investment Lead</b>. Osoba dostane email + in-app notifikáciu.</div>
+    </div>
+  </div>
+  <div class="route-grid" id="route-grid"></div>
+</div>
+
+</main>
+</div>
+
+<!-- ══════════ NEW REQUEST MODAL ══════════ -->
+<div class="mo-overlay" id="mo-overlay">
+  <div class="modal">
+    <div class="mo-head">
+      <div class="mo-title">Nová žiadosť</div>
+      <button class="mo-close" onclick="closeMo()">✕</button>
+    </div>
+    <div class="mo-body">
+      <div class="form-row">
+        <label class="lbl">Kategória *</label>
+        <select class="sel" id="f-cat" onchange="onCatChange()">
+          <option value="">— Vyberte kategóriu —</option>
+          <option value="funding">💰 Hľadám investor / funding</option>
+          <option value="hiring">👤 Hľadanie zamestnanca</option>
+          <option value="investment">📈 Investičná príležitosť</option>
+          <option value="speaking">🎤 Speaking na evente</option>
+          <option value="marketing">📢 Marketingová podpora</option>
+          <option value="sales">🤝 Podpora v sales</option>
+          <option value="client_search">🔍 Hľadanie klientov</option>
+          <option value="mentorship">💡 Mentorstvo</option>
+          <option value="partnership">🔗 Partnerstvo</option>
+          <option value="technical">⚙️ Technická pomoc</option>
+          <option value="other">○ Iné</option>
+        </select>
+      </div>
+
+      <!-- FUNDING SPECIAL SECTION -->
+      <div id="funding-section" style="display:none">
+        <div class="funding-box">
+          <div class="funding-box-title">💰 Funding žiadosť <span class="funding-badge">NEW</span></div>
+          <div class="form-2">
+            <div>
+              <label class="lbl">Požadovaná suma *</label>
+              <div style="position:relative">
+                <input class="inp" id="f-amount" type="number" placeholder="200000" style="padding-left:36px"/>
+                <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text2);font-weight:600;font-size:14px;">€</span>
+              </div>
             </div>
-            
+            <div>
+              <label class="lbl">Časový rámec</label>
+              <select class="sel" id="f-timeline">
+                <option value="1_month">1 mesiac</option>
+                <option value="3_months" selected>3 mesiace</option>
+                <option value="6_months">6 mesiacov</option>
+                <option value="12_months">12 mesiacov</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row" style="margin-bottom:0">
+            <label class="lbl">Fáza / štádium</label>
+            <select class="sel" id="f-stage">
+              <option value="pre_seed">Pre-seed</option>
+              <option value="seed" selected>Seed</option>
+              <option value="series_a">Series A</option>
+              <option value="series_b">Series B+</option>
+              <option value="grant">Grant / dotácia</option>
+            </select>
+          </div>
         </div>
+      </div>
+
+      <div class="form-row">
+        <label class="lbl">Názov žiadosti *</label>
+        <input class="inp" id="f-title" placeholder="Napr: Hľadáme seed investora pre EdTech startup"/>
+      </div>
+      <div class="form-row">
+        <label class="lbl">Popis *</label>
+        <textarea class="ta" id="f-desc" placeholder="Opíšte detailne, čo potrebujete, aký je kontext a čo ponúkate…"></textarea>
+      </div>
+      <div class="form-2">
+        <div><label class="lbl">Vaše meno *</label><input class="inp" id="f-name" placeholder="Meno Priezvisko"/></div>
+        <div><label class="lbl">Email *</label><input class="inp" id="f-email" type="email" placeholder="email@firma.sk"/></div>
+      </div>
+      <div class="form-2">
+        <div>
+          <label class="lbl">Typ žiadateľa</label>
+          <select class="sel" id="f-type">
+            <option value="startup">Startup</option>
+            <option value="investor">Investor</option>
+            <option value="service_provider">Service Provider</option>
+            <option value="community_member">Člen komunity</option>
+          </select>
+        </div>
+        <div>
+          <label class="lbl">Priorita</label>
+          <select class="sel" id="f-urgency">
+            <option value="low">Nízka</option>
+            <option value="medium" selected>Stredná</option>
+            <option value="high">Vysoká</option>
+            <option value="urgent">Urgentná</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="lbl">Firma (voliteľné)</label>
+        <input class="inp" id="f-company" placeholder="Názov firmy"/>
+      </div>
+
+      <!-- AI RESULT -->
+      <div id="ai-box" style="display:none">
+        <div class="ai-box">
+          <div class="ai-ttl">✦ AI analýza & auto-routing</div>
+          <div class="ai-row"><span class="ai-key">Kategória</span><span class="ai-val" id="ai-cat">—</span></div>
+          <div class="ai-row"><span class="ai-key">Priorita</span><span class="ai-val" id="ai-pri">—</span></div>
+          <div class="ai-row"><span class="ai-key">Auto-route →</span><span class="ai-val" id="ai-route">—</span></div>
+          <div class="ai-row"><span class="ai-key">Zhody</span><span class="ai-val" id="ai-matches">—</span></div>
+        </div>
+      </div>
     </div>
-
-    <div id="app-view" class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <div class="brand-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
-                ECOSYSTEM AI
-            </div>
-            <nav class="nav-menu">
-                <a class="nav-item active">Dashboard</a>
-                <a class="nav-item">Správy</a>
-                <a class="nav-item">Nastavenia</a>
-            </nav>
-            <div style="margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-light);">
-                <div style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 8px;">Prihlásený ako: <strong id="sidebar-user-role" style="color: white;">Rola</strong></div>
-                <button class="btn" style="width: 100%; padding: 8px; font-size: 0.8rem; background: transparent; border: 1px solid var(--border-light); color: var(--text-dim);" id="logout-btn">Odhlásiť sa</button>
-            </div>
-        </aside>
-
-        <main class="main-content" id="main-content-area">
-            <div class="content-wrapper">
-                <h2 style="margin-top: 0;">Vitaj v systéme, <span id="welcome-name"></span></h2>
-                <div class="panel">
-                    <div class="panel-header">Tvoj Dashboard</div>
-                    <p style="color: var(--text-dim);">Toto je tvoj pracovný priestor pre rolu: <strong id="dashboard-role-display"></strong>.</p>
-                    <p style="color: var(--text-dim); font-size: 0.9rem;">Tu neskôr dopracujeme špecifické funkcie pre Findera a Seekera.</p>
-                </div>
-            </div>
-        </main>
+    <div class="mo-foot">
+      <button class="btn btn-ghost" onclick="closeMo()">Zrušiť</button>
+      <button class="btn btn-mint" id="submit-btn" onclick="submitReq()">Odoslať žiadosť →</button>
     </div>
+  </div>
+</div>
 
-    <script src="index.js"></script>
+<!-- ══════════ DETAIL PANEL ══════════ -->
+<div class="det-overlay" id="det-overlay" onclick="closeDet(event)">
+  <div class="det-panel">
+    <div class="det-head">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div class="det-id" id="d-id">—</div>
+        <button class="mo-close" onclick="closeDet()" style="border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.5)">✕</button>
+      </div>
+      <div class="det-title" id="d-title">—</div>
+      <div class="det-badges" id="d-badges"></div>
+    </div>
+    <!-- auto-routed bar -->
+    <div class="routed-bar" id="routed-bar" style="display:none">
+      <div class="rb-label">Auto-routed →</div>
+      <div class="rb-person" id="rb-person">—</div>
+      <button class="btn btn-mint btn-sm rb-write" id="rb-write-btn" onclick="switchTab('chat')">Napísať správu</button>
+    </div>
+    <!-- tabs -->
+    <div class="det-tabs">
+      <div class="det-tab active" onclick="switchTab('info',this)" id="tab-info">Detaily</div>
+      <div class="det-tab" onclick="switchTab('chat',this)" id="tab-chat">Správy <span class="det-tab-badge" id="chat-unread-badge" style="display:none">!</span></div>
+    </div>
+    <!-- INFO TAB -->
+    <div id="tab-content-info" class="det-body">
+      <div class="det-scroll">
+        <!-- funding detail highlight -->
+        <div id="det-funding-highlight" style="display:none">
+          <div class="funding-detail">
+            <div class="det-ml" style="margin-bottom:6px">Požadovaná suma</div>
+            <div class="fd-amount" id="det-amount">—</div>
+            <div class="fd-period" id="det-period">—</div>
+          </div>
+        </div>
+        <div class="det-sec"><div class="det-sec-ttl">Popis</div><div class="det-desc" id="d-desc">—</div></div>
+        <div class="det-sec"><div class="det-sec-ttl">Detaily</div>
+          <div class="det-meta">
+            <div><div class="det-ml">Žiadateľ</div><div class="det-mv" id="d-req">—</div></div>
+            <div><div class="det-ml">Firma</div><div class="det-mv" id="d-co">—</div></div>
+            <div><div class="det-ml">Email</div><div class="det-mv" id="d-em">—</div></div>
+            <div><div class="det-ml">Priradené</div><div class="det-mv" id="d-asgn">—</div></div>
+            <div><div class="det-ml">Vytvorené</div><div class="det-mv" id="d-cr">—</div></div>
+            <div><div class="det-ml">Aktualizované</div><div class="det-mv" id="d-up">—</div></div>
+          </div>
+        </div>
+        <div class="det-sec"><div class="det-sec-ttl">Odporúčané zhody</div><div id="d-matches"></div></div>
+        <div class="det-sec"><div class="det-sec-ttl">Interné poznámky</div><div id="d-notes" style="font-size:13px;color:var(--text2)">—</div></div>
+      </div>
+    </div>
+    <!-- CHAT TAB -->
+    <div id="tab-content-chat" class="det-body" style="display:none;flex-direction:column;">
+      <div class="chat-msgs" id="det-chat-msgs"></div>
+      <div class="chat-input-wrap">
+        <textarea class="chat-input" id="det-chat-inp" placeholder="Napíšte správu…" rows="1" onkeydown="handleChatKey(event,'det')"></textarea>
+        <button class="chat-send" onclick="sendDetMsg()">➤</button>
+      </div>
+    </div>
+    <div class="det-foot">
+      <button class="btn btn-ghost" style="flex:1" onclick="updStatus('in_progress')">V riešení</button>
+      <button class="btn btn-mint" style="flex:1" onclick="updStatus('resolved')">Vyriešiť →</button>
+    </div>
+  </div>
+</div>
 
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────
+const API='http://localhost:8000';
+
+// AUTO-ROUTING RULES — kategória → zodpovedná osoba v Get IT / komunite
+const ROUTING_RULES = {
+  funding:      { name:'Zuzana Mináčová', role:'Investment Lead', company:'Get IT / zero one hundred', ico:'💰', desc:'Funding, investori, seed rounds', keywords:['investor','seed','round','funding','kapitál','200k','500k'] },
+  investment:   { name:'Zuzana Mináčová', role:'Investment Lead', company:'Get IT / zero one hundred', ico:'📈', desc:'Investičné príležitosti', keywords:['investícia','equity','round','ARR'] },
+  hiring:       { name:'Jana Kováčová',   role:'HR & Talent Lead', company:'Get IT', ico:'👤', desc:'Nábor, pozície, recruitment', keywords:['developer','hire','zamestnanec','pozícia','job'] },
+  speaking:     { name:'Peter Blaho',     role:'Speaker Manager', company:'Get IT / Startup Grind BA', ico:'🎤', desc:'Eventy, konferencie, panely', keywords:['speaker','event','konferencia','talk','panel'] },
+  marketing:    { name:'Lucia Horáková',  role:'Marketing Lead', company:'GrowthLab', ico:'📢', desc:'Kampane, social media, PR', keywords:['marketing','kampaň','LinkedIn','PR','brand'] },
+  sales:        { name:'Tomáš Ferko',     role:'Sales & BD Lead', company:'B2B Pros', ico:'🤝', desc:'Sales stratégia, pipeline, BD', keywords:['sales','predaj','pipeline','CRM','B2B'] },
+  client_search:{ name:'Tomáš Ferko',     role:'Sales & BD Lead', company:'B2B Pros', ico:'🔍', desc:'Hľadanie klientov, leads', keywords:['klient','zákazník','lead','B2B','enterprise'] },
+  mentorship:   { name:'Marek Novák',     role:'Mentor & Partner', company:'Credo Ventures', ico:'💡', desc:'Poradenstvo, mentoring, coaching', keywords:['mentor','rada','coaching','guidance'] },
+  partnership:  { name:'Peter Blaho',     role:'Ecosystem Lead', company:'Get IT', ico:'🔗', desc:'Partnerstvá, integrácie, kolaborácie', keywords:['partner','spolupráca','integration','joint'] },
+  technical:    { name:'Zuzana Mináčová', role:'CTO / Tech Lead', company:'SaaS Studio', ico:'⚙️', desc:'Technická pomoc, infraštruktúra, dev', keywords:['technický','bug','cloud','API','databáza'] },
+  other:        { name:'Marek Novák',     role:'Community Manager', company:'Get IT', ico:'○', desc:'Ostatné žiadosti', keywords:[] },
+};
+
+const TIMELINE_LABELS = { '1_month':'1 mesiac','3_months':'3 mesiace','6_months':'6 mesiacov','12_months':'12 mesiacov' };
+const STAGE_LABELS = { pre_seed:'Pre-seed',seed:'Seed',series_a:'Series A',series_b:'Series B+',grant:'Grant / dotácia' };
+
+let reqs=[], mems=[], curFilter='all', curReq=null, curTab='info';
+// in-app messages: { [reqId]: [{id,sender,text,time,mine}] }
+let msgStore={};
+// active global thread
+let globalThread=null;
+
+// ── SEED DATA ─────────────────────────────────────────────────
+const DEMO_REQS = [
+  {id:'F1A2',title:'Hľadám investora — 200 000 € seed round',description:'EdTech startup so 150 aktívnymi užívateľmi. Hľadáme seed investora na 200k€ počas 3 mesiacov na rozšírenie tímu a marketing.',requester_name:'Tomáš Kováč',requester_email:'tomas@edtech.sk',requester_type:'startup',company:'EduStart s.r.o.',category:'funding',priority:'urgent',status:'open',funding_amount:200000,funding_timeline:'3_months',funding_stage:'seed',created_at:new Date(Date.now()-1800000).toISOString(),updated_at:new Date().toISOString(),suggested_matches:[{name:'Marek Novák',role:'Partner',company:'Credo Ventures'}],assigned_to:'Zuzana Mináčová',internal_notes:null},
+  {id:'A1B2',title:'Hľadáme senior React developera',description:'Potrebujeme skúseného React developera s min. 4 rokmi skúseností. Full-remote možné.',requester_name:'Peter Novák',requester_email:'peter@startup.sk',requester_type:'startup',company:'TechStartup s.r.o.',category:'hiring',priority:'high',status:'open',created_at:new Date(Date.now()-3600000).toISOString(),updated_at:new Date().toISOString(),suggested_matches:[{name:'Jana Kováčová',role:'HR Director',company:'TechCorp SK'}],assigned_to:'Jana Kováčová',internal_notes:null},
+  {id:'E5F6',title:'Speaker na Startup Weekend Bratislava',description:'Hľadáme inšpiratívneho speakera na tému growth hacking. Október 2025.',requester_name:'Tomáš Beneš',requester_email:'tomas@sw.sk',requester_type:'community_member',company:'Startup Weekend BA',category:'speaking',priority:'medium',status:'in_progress',created_at:new Date(Date.now()-86400000).toISOString(),updated_at:new Date().toISOString(),suggested_matches:[],assigned_to:'Peter Blaho',internal_notes:null},
+  {id:'G7H8',title:'Social media kampaň pre SaaS launch',description:'Spúšťame B2B SaaS. Potrebujeme LinkedIn + Twitter kampaň.',requester_name:'Jana Mináčová',requester_email:'jana@saas.sk',requester_type:'startup',company:'SaaS.sk',category:'marketing',priority:'high',status:'open',created_at:new Date(Date.now()-172800000).toISOString(),updated_at:new Date().toISOString(),suggested_matches:[{name:'Lucia Horáková',role:'CMO',company:'GrowthLab'}],assigned_to:'Lucia Horáková',internal_notes:null},
+  {id:'I9J0',title:'Pomoc s B2B sales stratégiou',description:'HR tech startup. Poradenstvo k sales funnel pre enterprise.',requester_name:'Michal Varga',requester_email:'michal@hr.sk',requester_type:'startup',company:'HR Tech s.r.o.',category:'sales',priority:'medium',status:'resolved',created_at:new Date(Date.now()-259200000).toISOString(),updated_at:new Date().toISOString(),suggested_matches:[],assigned_to:'Tomáš Ferko',value_delivered:true,internal_notes:null},
+];
+
+// seed some demo messages
+const DEMO_MSGS = {
+  'F1A2': [
+    {id:'m1',sender:'Zuzana Mináčová',text:'Ahoj Tomáš, dostala som tvoju funding žiadosť. Môžeš mi poslať pitch deck? Rada sa pozriem na čísla.',time:'10:32',mine:false},
+    {id:'m2',sender:'Ty',text:'Ahoj Zuzana! Ďakujem za rýchlu reakciu. Pitch deck posielam na email, ale tu je krátke zhrnutie — ARR 80k€, MoM growth 15%, team 4 ľudia.',time:'10:45',mine:true},
+    {id:'m3',sender:'Zuzana Mináčová',text:'Vyzerá dobre! Môžeme si zavolať tento týždeň vo štvrtok o 14:00?',time:'11:02',mine:false},
+  ],
+  'E5F6': [
+    {id:'m1',sender:'Peter Blaho',text:'Ahoj, vidím žiadosť o speakera na Startup Weekend. Máme niekoľko skvelých kandidátov — chceš konkrétne mená?',time:'09:15',mine:false},
+    {id:'m2',sender:'Ty',text:'Áno prosím! Ideálne niekto kto má skúsenosť s growth hackingom v B2B SaaS.',time:'09:22',mine:true},
+  ],
+};
+
+document.addEventListener('DOMContentLoaded',()=>{ loadData(); setInterval(loadData,30000); });
+
+async function loadData(){
+  try{ await Promise.all([loadReqs(),loadMems(),loadStats()]); }
+  catch(e){ loadDemo(); }
+}
+
+async function loadReqs(){const r=await fetch(`${API}/requests?limit=100`);if(!r.ok)throw 0;const d=await r.json();reqs=d.items||[];renderAll();}
+async function loadMems(){const r=await fetch(`${API}/members`);if(!r.ok)throw 0;const d=await r.json();mems=d.items||[];renderMems();}
+async function loadStats(){const r=await fetch(`${API}/analytics`);if(!r.ok)throw 0;renderStats(await r.json());}
+
+function loadDemo(){
+  reqs=[...DEMO_REQS];
+  Object.entries(DEMO_MSGS).forEach(([k,v])=>{ msgStore[k]=[...v]; });
+  mems=[
+    {id:'m1',name:'Jana Kováčová',role:'HR Director',company:'TechCorp SK',expertise:['hiring'],availability:true,matches_resolved:12},
+    {id:'m2',name:'Marek Novák',role:'Partner',company:'Credo Ventures',expertise:['investment','mentorship'],availability:true,matches_resolved:8},
+    {id:'m3',name:'Lucia Horáková',role:'CMO',company:'GrowthLab',expertise:['marketing','sales'],availability:true,matches_resolved:15},
+    {id:'m4',name:'Peter Blaho',role:'Speaker Manager',company:'Get IT / Startup Grind BA',expertise:['speaking','partnership'],availability:true,matches_resolved:6},
+    {id:'m5',name:'Zuzana Mináčová',role:'Investment Lead / CTO',company:'Get IT',expertise:['funding','investment','technical'],availability:true,matches_resolved:20},
+    {id:'m6',name:'Tomáš Ferko',role:'Sales Director',company:'B2B Pros',expertise:['sales','client_search'],availability:true,matches_resolved:18},
+  ];
+  const bs={open:0,in_progress:0,resolved:0,closed:0};
+  const bc={};let urg=0;let fundingTotal=0;let fundingCount=0;
+  reqs.forEach(r=>{
+    bs[r.status]=(bs[r.status]||0)+1;
+    bc[r.category]=(bc[r.category]||0)+1;
+    if(r.priority==='urgent')urg++;
+    if(r.category==='funding'&&r.funding_amount){fundingTotal+=r.funding_amount;fundingCount++;}
+  });
+  const res=reqs.filter(r=>r.status==='resolved');
+  renderStats({total_requests:reqs.length,by_status:bs,by_category:bc,resolved_count:res.length,value_delivered_count:res.filter(r=>r.value_delivered).length,urgent:urg,active_members:mems.filter(m=>m.availability).length,funding_count:fundingCount,funding_total:fundingTotal});
+  renderAll();renderMems();renderRouteGrid();renderThreadList();
+  document.getElementById('msg-badge').style.display='block';
+}
+
+// ── STATS ─────────────────────────────────────────────────────
+function renderStats(d){
+  document.getElementById('s-total').textContent=d.total_requests||0;
+  document.getElementById('s-open').textContent=d.by_status?.open||0;
+  document.getElementById('s-urgent').textContent=d.urgent||0;
+  const fc=d.funding_count||reqs.filter(r=>r.category==='funding').length;
+  document.getElementById('s-funding').textContent=fc;
+  const ft=d.funding_total||reqs.filter(r=>r.category==='funding').reduce((s,r)=>s+(r.funding_amount||0),0);
+  document.getElementById('s-funding-amt').textContent=ft>0?`€${ft.toLocaleString()} celkom`:'—';
+  document.getElementById('active-ct').textContent=`${d.active_members||0} online`;
+  const catL=getCatLabels();
+  const bc=d.by_category||{};const mx=Math.max(...Object.values(bc),1);
+  const s=Object.entries(bc).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,7);
+  document.getElementById('cat-bars').innerHTML=s.length?s.map(([c,n])=>`<div class="cat-row"><div class="cat-lbl">${catL[c]||c}</div><div class="cat-track"><div class="cat-fill" style="width:${Math.round((n/mx)*100)}%"></div></div><div class="cat-num">${n}</div></div>`).join(''):'<div style="color:var(--text3);font-size:13px;padding:4px 0">Zatiaľ žiadne dáta</div>';
+}
+
+// ── RENDER ALL ────────────────────────────────────────────────
+function renderAll(){ renderReqs(); renderSb(); updBadge(); }
+
+function renderReqs(){
+  let f=[...reqs];
+  if(curFilter==='open')f=f.filter(r=>r.status==='open');
+  else if(curFilter==='in_progress')f=f.filter(r=>r.status==='in_progress');
+  else if(curFilter==='resolved')f=f.filter(r=>r.status==='resolved');
+  else if(curFilter==='urgent')f=f.filter(r=>r.priority==='urgent');
+  else if(curFilter==='funding')f=f.filter(r=>r.category==='funding');
+
+  const row=r=>{
+    const route=ROUTING_RULES[r.category];
+    const amtStr=r.funding_amount?` — €${Number(r.funding_amount).toLocaleString()}`:'';
+    return`<div class="trow" onclick="openDet('${r.id}')">
+      <div class="req-num">${r.id.slice(0,4)}</div>
+      <div><div class="req-ttl">${esc(r.title)}${amtStr?`<span style="font-size:11px;color:#0a9e6e;font-weight:700;margin-left:6px">${amtStr}</span>`:''}</div><div class="req-meta">${r.company||r.requester_type}${route?` · → ${route.name}`:''}</div></div>
+      <div>${catB(r.category)}</div>
+      <div>${prioB(r.priority)}</div>
+      <div>${statB(r.status)}</div>
+      <div style="font-size:12px;color:var(--text2)">${r.requester_name}</div>
+      <button class="mbtn" onclick="event.stopPropagation();openDet('${r.id}')">→</button>
+    </div>`;
+  };
+  const emp='<div class="empty"><div class="empty-ico">○</div><div class="empty-ttl">Žiadne výsledky</div></div>';
+  const rec=[...reqs].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,5);
+  document.getElementById('recent-list').innerHTML=rec.length?rec.map(row).join(''):emp;
+  const fullEl=document.getElementById('full-list');
+  if(fullEl)fullEl.innerHTML=f.length?f.map(row).join(''):emp;
+}
+
+function renderSb(){
+  document.getElementById('members-sb').innerHTML=(mems||[]).filter(m=>m.availability).slice(0,4).map(m=>`<div class="mem-item"><div class="mem-av">${ini(m.name)}</div><div><div class="mem-name">${m.name}</div><div class="mem-role">${m.role}</div></div><div class="av-dot av-${m.availability}"></div></div>`).join('');
+}
+
+function renderMems(){
+  const cL=getCatLabels();
+  document.getElementById('members-grid').innerHTML=(mems||[]).map(m=>`<div class="mc"><div class="mc-hd"><div class="mc-blob"></div><div style="display:flex;align-items:center;justify-content:space-between"><div class="mc-av">${ini(m.name)}</div><div class="mc-avd av-${m.availability}"></div></div><div class="mc-name">${m.name}</div><div class="mc-role">${m.role} · ${m.company}</div></div><div class="mc-bd"><div class="mc-tags">${(m.expertise||[]).map(e=>`<span class="badge b-${e}" style="font-size:11px">${cL[e]||e}</span>`).join('')}</div></div><div class="mc-ft">✓ ${m.matches_resolved} zhôd<button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="openMsgWith('${m.name}','${m.role}')">Napísať</button></div></div>`).join('');
+}
+
+// ── ROUTING GRID ──────────────────────────────────────────────
+function renderRouteGrid(){
+  document.getElementById('route-grid').innerHTML=Object.entries(ROUTING_RULES).map(([cat,rule])=>`
+    <div class="route-card">
+      <div class="rc-head">
+        <div class="rc-ico">${rule.ico}</div>
+        <div><div class="rc-cat">${getCatLabels()[cat]||cat}</div><div class="rc-sub">${rule.desc}</div></div>
+      </div>
+      <div class="rc-body">
+        <div class="rc-owner">
+          <div class="rc-av-sm">${ini(rule.name)}</div>
+          <div><div class="rc-owner-name">${rule.name}</div><div class="rc-owner-role">${rule.role} · ${rule.company}</div></div>
+        </div>
+        ${rule.keywords.length?`<div class="rc-keywords">${rule.keywords.slice(0,5).map(k=>`<span class="rc-kw">${k}</span>`).join('')}</div>`:''}
+      </div>
+    </div>`).join('');
+}
+
+// ── THREAD LIST (messages view) ───────────────────────────────
+function renderThreadList(){
+  const threads=reqs.filter(r=>(msgStore[r.id]||[]).length>0);
+  const el=document.getElementById('thread-list');
+  if(!el)return;
+  if(!threads.length){el.innerHTML='<div style="padding:20px;color:var(--text3);font-size:13px">Zatiaľ žiadne správy</div>';return;}
+  el.innerHTML=threads.map(r=>{
+    const msgs=msgStore[r.id]||[];
+    const last=msgs[msgs.length-1];
+    const active=globalThread===r.id?'background:#f2f2f8;':'';
+    return`<div style="padding:14px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;${active}" onclick="openThread('${r.id}')" onmouseenter="this.style.background='#f2f2f8'" onmouseleave="this.style.background='${active?'#f2f2f8':'transparent'}'">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:11px;font-weight:800;color:var(--navy);flex-shrink:0">${ROUTING_RULES[r.category]?.ico||'○'}</div>
+        <div style="min-width:0;flex:1">
+          <div style="font-size:13px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.title}</div>
+          <div style="font-size:11px;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${last.sender}: ${last.text.slice(0,40)}…</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px">${last.time}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openThread(reqId){
+  globalThread=reqId;
+  renderThreadList();
+  const r=reqs.find(x=>x.id===reqId);
+  if(!r)return;
+  document.getElementById('chat-title').textContent=r.title;
+  renderGlobalChat();
+}
+
+function renderGlobalChat(){
+  const el=document.getElementById('chat-msgs');
+  if(!el)return;
+  const msgs=msgStore[globalThread]||[];
+  if(!msgs.length){el.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:30px">Žiadne správy</div>';return;}
+  el.innerHTML=msgs.map(m=>msgBubble(m)).join('');
+  el.scrollTop=el.scrollHeight;
+}
+
+function sendGlobalMsg(){
+  const inp=document.getElementById('global-chat-inp');
+  const txt=inp.value.trim();if(!txt||!globalThread)return;
+  if(!msgStore[globalThread])msgStore[globalThread]=[];
+  msgStore[globalThread].push({id:'g'+Date.now(),sender:'Ty',text:txt,time:fmtTime(),mine:true});
+  inp.value='';renderGlobalChat();renderThreadList();
+  // simulate reply
+  const route=ROUTING_RULES[reqs.find(r=>r.id===globalThread)?.category||'other'];
+  setTimeout(()=>{
+    if(!msgStore[globalThread])return;
+    msgStore[globalThread].push({id:'r'+Date.now(),sender:route?.name||'Tím',text:'Ďakujem za správu, ozvem sa čoskoro!',time:fmtTime(),mine:false});
+    renderGlobalChat();renderThreadList();
+  },1400);
+}
+
+// ── DETAIL PANEL ──────────────────────────────────────────────
+function openDet(id){
+  const r=reqs.find(x=>x.id===id);if(!r)return;
+  curReq=r; curTab='info';
+  document.getElementById('d-id').textContent=`# ${r.id}`;
+  document.getElementById('d-title').textContent=r.title;
+  document.getElementById('d-badges').innerHTML=`${catB(r.category)} ${prioB(r.priority)} ${statB(r.status)}`;
+  document.getElementById('d-desc').textContent=r.description;
+  document.getElementById('d-req').textContent=r.requester_name;
+  document.getElementById('d-co').textContent=r.company||'—';
+  document.getElementById('d-em').textContent=r.requester_email;
+  document.getElementById('d-asgn').textContent=r.assigned_to||'Nepriradené';
+  document.getElementById('d-cr').textContent=fmtD(r.created_at);
+  document.getElementById('d-up').textContent=fmtD(r.updated_at);
+  document.getElementById('d-notes').textContent=r.internal_notes||'—';
+
+  // funding highlight
+  const fh=document.getElementById('det-funding-highlight');
+  if(r.category==='funding'&&r.funding_amount){
+    fh.style.display='block';
+    document.getElementById('det-amount').textContent=`€${Number(r.funding_amount).toLocaleString()}`;
+    document.getElementById('det-period').textContent=`${TIMELINE_LABELS[r.funding_timeline]||''} · ${STAGE_LABELS[r.funding_stage]||''}`;
+  } else { fh.style.display='none'; }
+
+  // routed bar
+  const route=ROUTING_RULES[r.category];
+  const rb=document.getElementById('routed-bar');
+  if(route){
+    rb.style.display='flex';
+    document.getElementById('rb-person').innerHTML=`<div class="rb-av">${ini(route.name)}</div>${route.name} <span style="font-size:11px;color:var(--text2);font-weight:400">· ${route.role}</span>`;
+  } else { rb.style.display='none'; }
+
+  // matches
+  const ms=r.suggested_matches||[];
+  document.getElementById('d-matches').innerHTML=ms.length?ms.map(m=>`<div class="match-card"><div class="match-av">${ini(m.name)}</div><div><div style="font-size:13px;font-weight:500;color:var(--navy)">${m.name}</div><div style="font-size:11px;color:var(--text2)">${m.role||''} · ${m.company||''}</div></div><button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="startChatFrom('${id}','${m.name}')">Napísať</button></div>`).join(''):'<div style="color:var(--text3);font-size:13px">Žiadne zhody</div>';
+
+  switchTab('info');
+  renderDetChat();
+  document.getElementById('det-overlay').classList.add('open');
+}
+
+function startChatFrom(reqId,person){
+  switchTab('chat');
+  const inp=document.getElementById('det-chat-inp');
+  inp.focus();
+  showToast(`Chat s ${person} otvorený`);
+}
+
+function renderDetChat(){
+  if(!curReq)return;
+  if(!msgStore[curReq.id])msgStore[curReq.id]=[];
+  const msgs=msgStore[curReq.id];
+  const route=ROUTING_RULES[curReq.category];
+  const el=document.getElementById('det-chat-msgs');
+  if(!el)return;
+  if(!msgs.length){
+    el.innerHTML=`<div style="text-align:center;padding:20px 10px">
+      <div style="font-size:28px;margin-bottom:8px">${route?.ico||'💬'}</div>
+      <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:4px">Napíšte priamo ${route?.name||'zodpovednej osobe'}</div>
+      <div style="font-size:12px;color:var(--text2)">${route?.role||''} · ${route?.company||''}</div>
+    </div>`;
+    return;
+  }
+  const sysMsg=`<div class="chat-system">Auto-routed k ${route?.name||'tímu'}</div>`;
+  el.innerHTML=sysMsg+msgs.map(m=>msgBubble(m)).join('');
+  el.scrollTop=el.scrollHeight;
+  document.getElementById('chat-unread-badge').style.display='none';
+}
+
+function msgBubble(m){
+  return`<div class="msg ${m.mine?'mine':'theirs'}">
+    <div class="msg-av ${m.mine?'msg-av-navy':''}" style="${m.mine?'background:var(--navy);color:var(--mint)':''}">${ini(m.sender)}</div>
+    <div>
+      ${!m.mine?`<div class="msg-sender">${m.sender}</div>`:''}
+      <div class="msg-bubble">${esc(m.text)}</div>
+      <div class="msg-meta">${m.time}</div>
+    </div>
+  </div>`;
+}
+
+function sendDetMsg(){
+  const inp=document.getElementById('det-chat-inp');
+  const txt=inp.value.trim();if(!txt||!curReq)return;
+  if(!msgStore[curReq.id])msgStore[curReq.id]=[];
+  msgStore[curReq.id].push({id:'d'+Date.now(),sender:'Ty',text:txt,time:fmtTime(),mine:true});
+  inp.value='';renderDetChat();
+  // auto-reply from routed person
+  const route=ROUTING_RULES[curReq.category];
+  setTimeout(()=>{
+    if(!curReq||!msgStore[curReq.id])return;
+    const replies=[
+      `Ďakujem za správu! Pozriem sa na to a ozvem sa čo najskôr.`,
+      `Super, mám niekoľko kandidátov ktorých ti môžem odporučiť. Kedy si môžeme zavolať?`,
+      `Dostala som tvoju žiadosť. Vyzerá zaujímavo — pošli mi aj pitch deck na email.`,
+      `Pracujem na tom, dám ti vedieť do 24 hodín.`,
+    ];
+    msgStore[curReq.id].push({id:'r'+Date.now(),sender:route?.name||'Tím',text:replies[Math.floor(Math.random()*replies.length)],time:fmtTime(),mine:false});
+    renderDetChat();renderThreadList();
+  },1200);
+}
+
+function handleChatKey(e,type){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();type==='det'?sendDetMsg():sendGlobalMsg();}
+}
+
+function switchTab(tab,el){
+  curTab=tab;
+  document.getElementById('tab-content-info').style.display=tab==='info'?'':'none';
+  const chatEl=document.getElementById('tab-content-chat');
+  chatEl.style.display=tab==='chat'?'flex':'none';
+  if(tab==='chat'){chatEl.style.flexDirection='column';renderDetChat();}
+  document.querySelectorAll('.det-tab').forEach(t=>t.classList.remove('active'));
+  if(el){el.classList.add('active');}
+  else{document.getElementById('tab-'+tab)?.classList.add('active');}
+}
+
+function closeDet(e){if(!e||e.target===document.getElementById('det-overlay')){document.getElementById('det-overlay').classList.remove('open');curReq=null;}}
+
+async function updStatus(s){
+  if(!curReq)return;
+  try{await fetch(`${API}/requests/${curReq.id}`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:s})});}catch(e){}
+  curReq.status=s;const req=reqs.find(r=>r.id===curReq.id);if(req)req.status=s;
+  document.getElementById('d-badges').innerHTML=`${catB(curReq.category)} ${prioB(curReq.priority)} ${statB(s)}`;
+  renderReqs();showToast(`Stav zmenený: ${s}`);
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────
+async function submitReq(){
+  const title=document.getElementById('f-title').value.trim();
+  const desc=document.getElementById('f-desc').value.trim();
+  const name=document.getElementById('f-name').value.trim();
+  const email=document.getElementById('f-email').value.trim();
+  const cat=document.getElementById('f-cat').value;
+  if(!title||!desc||!name||!email||!cat){showToast('Vyplňte všetky povinné polia','err');return;}
+  const btn=document.getElementById('submit-btn');btn.textContent='Spracovanie…';btn.disabled=true;
+  const route=ROUTING_RULES[cat]||ROUTING_RULES.other;
+  const newReq={
+    id:Math.random().toString(36).substr(2,4).toUpperCase(),
+    title,description:desc,requester_name:name,requester_email:email,
+    requester_type:document.getElementById('f-type').value,
+    urgency_self_reported:document.getElementById('f-urgency').value,
+    company:document.getElementById('f-company').value.trim()||null,
+    category:cat,priority:document.getElementById('f-urgency').value,
+    status:'open',created_at:new Date().toISOString(),updated_at:new Date().toISOString(),
+    suggested_matches:[],assigned_to:route.name,internal_notes:null,
+    funding_amount:cat==='funding'?Number(document.getElementById('f-amount').value)||null:null,
+    funding_timeline:cat==='funding'?document.getElementById('f-timeline').value:null,
+    funding_stage:cat==='funding'?document.getElementById('f-stage').value:null,
+  };
+  reqs.unshift(newReq);
+  // show AI result
+  document.getElementById('ai-box').style.display='block';
+  document.getElementById('ai-cat').textContent=getCatLabels()[cat]||cat;
+  document.getElementById('ai-pri').innerHTML=prioB(newReq.priority);
+  document.getElementById('ai-route').innerHTML=`<div class="route-chip"><div class="rc-av">${ini(route.name)}</div>${route.name} · ${route.role}</div>`;
+  document.getElementById('ai-matches').textContent=route.name;
+  // seed initial chat message from routed person
+  if(!msgStore[newReq.id])msgStore[newReq.id]=[];
+  setTimeout(()=>{
+    msgStore[newReq.id].push({id:'auto'+Date.now(),sender:route.name,text:`Ahoj ${name.split(' ')[0]}, dostal/a som tvoju žiadosť "${title}". Hneď sa pozriem na detaily a ozvem sa!`,time:fmtTime(),mine:false});
+    renderThreadList();document.getElementById('msg-badge').style.display='block';
+  },1800);
+  renderAll();renderStats({total_requests:reqs.length,by_status:{open:reqs.filter(r=>r.status==='open').length},by_category:getCatCount(),resolved_count:reqs.filter(r=>r.status==='resolved').length,value_delivered_count:0,urgent:reqs.filter(r=>r.priority==='urgent').length,active_members:mems.filter(m=>m.availability).length,funding_count:reqs.filter(r=>r.category==='funding').length,funding_total:reqs.filter(r=>r.category==='funding').reduce((s,r)=>s+(r.funding_amount||0),0)});
+  showToast(`Žiadosť vytvorená! Auto-routed → ${route.name}`);
+  btn.textContent='Odoslať žiadosť →';btn.disabled=false;
+}
+
+function onCatChange(){
+  const cat=document.getElementById('f-cat').value;
+  document.getElementById('funding-section').style.display=cat==='funding'?'block':'none';
+  if(cat==='funding'&&!document.getElementById('f-title').value){
+    document.getElementById('f-title').value='Hľadám seed investora — funding žiadosť';
+  }
+}
+
+function openMsgWith(name,role){
+  showToast(`Chat s ${name} otvorený`);
+  showView('messages',document.querySelector('.nav-item:nth-child(3)'));
+}
+
+// ── UI HELPERS ────────────────────────────────────────────────
+function showView(v,el){
+  ['dashboard','requests','messages','members','routing'].forEach(x=>document.getElementById(`view-${x}`).style.display=x===v?'':'none');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el)el.classList.add('active');
+  if(v==='routing')renderRouteGrid();
+  if(v==='messages'){renderThreadList();if(globalThread)renderGlobalChat();}
+}
+
+function setFilter(f,el){curFilter=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderReqs();}
+
+function openModal(){document.getElementById('mo-overlay').classList.add('open');document.getElementById('ai-box').style.display='none';document.getElementById('funding-section').style.display='none';['f-title','f-desc','f-name','f-email','f-company','f-amount'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('f-cat').value='';}
+function closeMo(){document.getElementById('mo-overlay').classList.remove('open');}
+document.getElementById('mo-overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeMo();});
+
+function showToast(msg,t=''){const el=document.createElement('div');el.className=`toast${t?' '+t:''}`;el.innerHTML=`${t==='err'?'✕':'✓'} ${msg}`;document.getElementById('toasts').appendChild(el);setTimeout(()=>el.remove(),3800);}
+
+function updBadge(){document.getElementById('open-badge').textContent=reqs.filter(r=>r.status==='open').length;}
+function getCatCount(){const bc={};reqs.forEach(r=>{bc[r.category]=(bc[r.category]||0)+1;});return bc;}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function ini(n){return(n||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);}
+function fmtD(iso){if(!iso)return'—';const d=new Date(iso);return`${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;}
+function fmtTime(){const d=new Date();return`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
+function getCatLabels(){return{funding:'💰 Funding',hiring:'Zamestnanie',investment:'Investícia',speaking:'Speaking',marketing:'Marketing',sales:'Sales',client_search:'Klienti',mentorship:'Mentorstvo',partnership:'Partnerstvo',technical:'Technická',other:'Iné'};}
+function catB(c){const l=getCatLabels();return`<span class="badge b-${c||'other'}">${l[c]||c}</span>`;}
+function prioB(p){return`<span class="badge b-${p||'low'}">${{urgent:'Urgentná',high:'Vysoká',medium:'Stredná',low:'Nízka'}[p]||p}</span>`;}
+function statB(s){return`<span class="badge b-${(s||'').replace('_','-')}">${{open:'Otvorená',in_progress:'V riešení',resolved:'Vyriešená',closed:'Uzavretá'}[s]||s}</span>`;}
+</script>
 </body>
 </html>

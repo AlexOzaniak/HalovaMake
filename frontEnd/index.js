@@ -111,6 +111,41 @@ document.getElementById('logout-btn').addEventListener('click', () => {
     showToast("Odhlásenie prebehlo úspešne", "info");
 });
 
+// --- LIVE AI MATCHMAKING ---
+async function queryLiveAiMatches() {
+    const query = document.getElementById('ai-query').value.trim();
+    const results = document.getElementById('ai-results');
+    if (!query) {
+        showToast('Zadaj dopyt pre AI', 'error');
+        return;
+    }
+
+    results.textContent = 'Posielam požiadavku na backend...';
+
+    try {
+        const backendUrl = 'http://127.0.0.1:8000/ai-matches?query=' + encodeURIComponent(query);
+        const res = await fetch(backendUrl, { method: 'POST' });
+        if (!res.ok) {
+            // 404 / 503 / 500 handling
+            const txt = await res.text();
+            throw new Error(`HTTP ${res.status} ${txt}`);
+        }
+        const data = await res.json();
+        // For compatibility with /ziadosti fallback
+        if (data.ai_analyza) {
+            results.textContent = JSON.stringify(data.ai_analyza, null, 2);
+        } else {
+            results.textContent = JSON.stringify(data, null, 2);
+        }
+        showToast('AI odpoveď prijatá', 'success');
+    } catch (error) {
+        results.textContent = 'Chyba: ' + error.message;
+        showToast('Chyba pri volaní backendu', 'error');
+    }
+}
+
+document.getElementById('ai-query-btn').addEventListener('click', queryLiveAiMatches);
+
 // --- POMOCNÁ FUNKCIA (Toasty) ---
 function showToast(msg, type) {
     const container = document.getElementById('toast-container');
