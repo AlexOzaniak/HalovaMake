@@ -159,7 +159,7 @@ SEED_MEMBERS = [
         "id": "m2", "name": "Marek Novák", "role": "Partner", "company": "Credo Ventures",
         "expertise": [RequestCategory.INVESTMENT, RequestCategory.MENTORSHIP], "email": "marek@credo.vc",
         "availability": True, "matches_resolved": 8
-    },
+    },  
     {
         "id": "m3", "name": "Lucia Horáková", "role": "CMO", "company": "GrowthLab",
         "expertise": [RequestCategory.MARKETING, RequestCategory.SALES], "email": "lucia@growthlab.sk",
