@@ -1,0 +1,73 @@
+/* === PRÉMIOVÝ DARK MODE & GLASSMORPHISM === */
+:root {
+    --bg-base: #0b1121;
+    --bg-panel: rgba(30, 41, 59, 0.6);
+    --bg-sidebar: rgba(15, 23, 42, 0.95);
+    --text-main: #f8fafc;
+    --text-dim: #94a3b8;
+    --accent-blue: #3b82f6;
+    --accent-glow: rgba(59, 130, 246, 0.4);
+    --border-light: rgba(255, 255, 255, 0.08);
+    --red: #ef4444; 
+    --orange: #f59e0b; 
+    --green: #10b981;
+    --sidebar-width: 260px;
+}
+
+body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background-color: var(--bg-base);
+    background-image: radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.05), transparent 25%), radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.03), transparent 25%);
+    color: var(--text-main); 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    min-height: 100vh;
+    display: flex; 
+    overflow-x: hidden;
+}
+
+/* === LAYOUT === */
+.app-container { display: none; width: 100%; height: 100vh; }
+.app-container.active { display: flex; animation: fadeIn 0.4s ease; }
+
+.sidebar { width: var(--sidebar-width); background: var(--bg-sidebar); border-right: 1px solid var(--border-light); padding: 30px 20px; display: flex; flex-direction: column; flex-shrink: 0; z-index: 10; }
+.sidebar-brand { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 1.2rem; margin-bottom: 40px; color: white; }
+.brand-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent-blue), #8b5cf6); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+
+.nav-menu { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+.nav-item { padding: 12px 16px; border-radius: 8px; color: var(--text-dim); text-decoration: none; font-weight: 500; font-size: 0.9rem; transition: 0.2s; cursor: pointer; display: flex; align-items: center; gap: 12px; }
+.nav-item:hover, .nav-item.active { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); }
+
+.main-content { flex-grow: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+.content-wrapper { width: 100%; max-width: 1000px; }
+
+/* === ZOBRAZOVANIE AUTHENTIFIKÁCIE === */
+#auth-view { width: 100%; display: none; justify-content: center; align-items: center; padding: 40px; }
+#auth-view.active { display: flex; animation: fadeIn 0.4s ease; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* === PANELY === */
+.panel { background: var(--bg-panel); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border-light); border-radius: 16px; padding: 28px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.panel-header { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); border-bottom: 1px solid var(--border-light); padding-bottom: 12px; margin-bottom: 20px; }
+
+/* === FORMULÁRE & TLAČIDLÁ === */
+.form-group { margin-bottom: 16px; text-align: left; }
+input, select { width: 100%; background: rgba(0,0,0,0.2); color: white; padding: 12px 16px; border: 1px solid var(--border-light); border-radius: 10px; font-family: inherit; box-sizing: border-box; transition: all 0.3s ease; }
+input:focus, select:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+
+.btn { background: var(--accent-blue); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.2s ease; display: inline-block; }
+.btn:hover { background: #2563eb; box-shadow: 0 0 15px var(--accent-glow); transform: translateY(-1px); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-green { background: var(--green); } 
+.btn-green:hover { background: #059669; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+
+.auth-switch { margin-top: 20px; font-size: 0.85rem; color: var(--text-dim); }
+.auth-switch span { color: var(--accent-blue); cursor: pointer; font-weight: 600; transition: 0.2s; }
+.auth-switch span:hover { text-decoration: underline; color: white; }
+
+/* === TOASTY === */
+#toast-container { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+.toast { background: rgba(15, 23, 42, 0.95); border: 1px solid var(--border-light); color: white; padding: 16px 24px; border-radius: 12px; font-size: 0.9rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 12px; animation: slideIn 0.3s forwards; }
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
