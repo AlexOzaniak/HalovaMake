@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnec
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
-from enum import Enum 
+from enum import Enum
 
 from groq import Groq
 from dotenv import load_dotenv
@@ -19,10 +19,8 @@ from prompts import MATCHMAKING_SYSTEM_PROMPT, PARSE_REQUEST_SYSTEM_PROMPT
 # LOAD ENV
 # -------------------------
 load_dotenv()
-
-api_Token = os.getenv("API_TOKEN")
-
-groq_client = Groq(api_key=api_Token) if api_Token else None
+api_key = os.getenv("GROQ_API_KEY")
+groq_client = Groq(api_key=api_key) if api_key else None
 
 # -------------------------
 # APP
@@ -282,7 +280,7 @@ def get_request_or_404(request_id: str) -> dict:
 # -------------------------
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 def root():
-    groq_status = "✅ Groq AI aktívny" if groq_client else "⚠️ Groq AI neaktívny – nastav API_TOKEN v .env"
+    groq_status = "✅ Groq AI aktívny" if groq_client else "⚠️ Groq AI neaktívny – nastav GROQ_API_KEY v .env"
     return f"""
     <html><body style="font-family:sans-serif;padding:2rem;background:#0f0f0f;color:#fff">
     <h1>🚀 Startup Community Request API v2</h1>
@@ -356,7 +354,7 @@ def rerun_ai_analyza(request_id: str):
     if not groq_client:
         raise HTTPException(
             status_code=503,
-            detail="Groq AI nie je nakonfigurovaný. Nastav API_TOKEN v .env súbore."
+            detail="Groq AI nie je nakonfigurovaný. Nastav GROQ_API_KEY v .env súbore."
         )
     record = get_request_or_404(request_id)
     request_data = RequestCreate(**{k: v for k, v in record.items() if k in RequestCreate.model_fields})
@@ -373,69 +371,37 @@ async def aktualizovat_status(request_id: str, update: StatusUpdate):
     record["status"] = update.status
     record["aktualizovane"] = datetime.utcnow()
     if update.poznamka:
-        record["poznamka"] = update.poznamka
-
-    await manager.broadcast({"event": "status_updated", "request_id": request_id, "request": serialize_request(record)})
-
+        # Môžeš pridať poznámku do logu alebo systému
+        pass
+    
+    await manager.broadcast({"event": "status_updated", "request": serialize_request(record)})
+    
     return record
 
 
-@app.delete("/ziadosti/{request_id}", status_code=204, tags=["Žiadosti"])
+@app.delete("/ziadosti/{request_id}", tags=["Žiadosti"])
 async def zmazat_ziadost(request_id: str):
-    """Zmaže žiadosť."""
-    get_request_or_404(request_id)
+    """Vymaže žiadosť."""
+    if request_id not in requests_db:
+        raise HTTPException(status_code=404, detail=f"Žiadosť '{request_id}' nebola nájdená")
+    
     del requests_db[request_id]
-    await manager.broadcast({"event": "deleted", "request_id": request_id})
+    
+    await manager.broadcast({"event": "request_deleted", "request_id": request_id})
+    
+    return {"detail": "Žiadosť bola úspešne vymazaná"}
 
 
-@app.websocket("/ws/ziadosti")
-async def websocket_ziadosti(websocket: WebSocket):
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    """WebSocket endpoint pre real-time aktualizácie."""
     await manager.connect(websocket)
     try:
-        # send current snapshot pri pripojení
-        snapshot = [serialize_request(r) for r in requests_db.values()]
-        await websocket.send_text(json.dumps({"event": "snapshot", "requests": snapshot}, default=str))
         while True:
-            await websocket.receive_text()  # keep alive ping/pong
+            # Keep connection alive
+            await websocket.receive_text()
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-    except Exception:
-        manager.disconnect(websocket)
 
 
-@app.get("/ai/status", tags=["AI"])
-def ai_status():
-    """Stav Groq AI integrácie."""
-    return {
-        "groq_aktivny": groq_client is not None,
-        "model": "llama-3.1-8b-instant",
-        "info": "Nastav API_TOKEN v .env pre aktiváciu." if not groq_client else "AI matchmaking je aktívny."
-    }
-
-
-@app.get("/statistiky", tags=["Štatistiky"])
-def statistiky():
-    """Prehľad štatistík."""
-    items = list(requests_db.values())
-    return {
-        "celkom_ziadosti": len(items),
-        "urgentne": sum(1 for i in items if i["urgentne"]),
-        "s_ai_analyzou": sum(1 for i in items if i.get("ai_analyza")),
-        "podla_kategorie": {cat.value: sum(1 for i in items if i["kategoria"] == cat) for cat in RequestCategory},
-        "podla_statusu": {s.value: sum(1 for i in items if i["status"] == s) for s in RequestStatus},
-        "podla_typu_pouzivatela": {ut.value: sum(1 for i in items if i["typ_pouzivatela"] == ut) for ut in UserType},
-    }
-
-
-@app.get("/kategorie", tags=["Pomocné"])
-def zoznam_kategorii():
-    """Zoznam kategórií žiadostí."""
-    return [{"hodnota": k, "popis": v} for k, v in {
-        "hladanie_zamestnanca": "Hľadanie zamestnanca",
-        "hladanie_investora": "Hľadanie investora",
-        "speaking_na_evente": "Možnosť speakovať na evente",
-        "zdielanie_marketingu": "Zdieľanie marketingových podkladov",
-        "podpora_sales": "Podpora v oblasti sales",
-        "hladanie_klientov": "Hľadanie klientov",
-        "ine": "Iné",
-    }.items()]
+        

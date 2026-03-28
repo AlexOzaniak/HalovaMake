@@ -1,4 +1,5 @@
 import bcrypt
+1
 
 class User:
     def __init__(self, username, hashed_password):
@@ -38,6 +39,7 @@ class LoginSystem:
 
         if bcrypt.checkpw(password.encode('utf-8'), user.password_hash):
             return True, f"Vitaj, {username}!"
+
         
         return False, "Neplatné údaje."
 

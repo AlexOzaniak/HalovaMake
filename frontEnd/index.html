@@ -85,6 +85,25 @@
                     <p style="color: var(--text-dim);">Toto je tvoj pracovný priestor pre rolu: <strong id="dashboard-role-display"></strong>.</p>
                     <p style="color: var(--text-dim); font-size: 0.9rem;">Tu neskôr dopracujeme špecifické funkcie pre Findera a Seekera.</p>
                 </div>
+
+                <div class="panel" style="margin-top: 1rem;">
+                    <div class="panel-header">Vytvor novú žiadosť (AI parsing)</div>
+                    <form id="ai-request-form">
+                        <textarea id="ai-request-input" placeholder="Popíš svoj dopyt pre startup komunitu..." rows="4" style="width:100%; border:1px solid #333; background:#0f0f0f; color:#fff; padding:8px;"></textarea>
+                        <button type="submit" class="btn" style="width: 100%; margin-top: 8px;">Odoslať AI požiadavku</button>
+                    </form>
+                    <p id="ai-request-status" style="margin-top: 0.6rem; color: var(--text-dim); font-size: 0.9rem;">Sem sa vypíšu výsledky AI a časť odpovedí.</p>
+                    <div style="margin-top: 0.75rem; background: #0f0f0f; border: 1px solid #333; padding: 0.75rem; border-radius: 6px;">
+                        <div style="font-size:0.8rem; color: var(--text-dim); margin-bottom: 4px;">JSON INFO</div>
+                        <pre id="ai-response-json" style="white-space: pre-wrap; word-break: break-word; max-height: 200px; overflow-y: auto; margin: 0; color: #8ef;"></pre>
+                    </div>
+                </div>
+
+                <div class="panel" style="margin-top: 1rem;">
+                    <div class="panel-header">Reálne časové eventy</div>
+                    <div id="realtime-status" style="margin-bottom: 0.75rem; color: var(--text-dim);">Pripájanie...</div>
+                    <ul id="request-feed" style="list-style: none; padding-left: 0;"></ul>
+                </div>
             </div>
         </main>
     </div>
